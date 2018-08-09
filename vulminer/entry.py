@@ -19,8 +19,8 @@ def main(path, t):
     dataset = Data()
     dataset.load(path, t)
     dataset.prep()
-    print(dataset._vec_set[0]['vector'])
-    print(dataset._vec_set[0]['vector'][0])
+    print(len(dataset._vec_set[0]['vector']))
+    print(len(dataset._vec_set[0]['vector'][0]))
 
 
 if __name__ == '__main__':
