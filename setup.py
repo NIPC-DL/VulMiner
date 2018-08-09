@@ -15,6 +15,15 @@ setup(
     version = '0.1',
     packages = find_packages(exclude=('tests', 'docs')),
 
+    install_requires=[
+        'click',
+        'numpy',
+        'scipy',
+        'keras',
+        'theano',
+        'gensim'
+    ]
+
     entry_points = {
         'console_scripts': [
             'vulminer = entry: main',
