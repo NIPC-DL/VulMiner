@@ -4,8 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+keras = "*"
+theano = "*"
+gensim = "*"
+click = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"

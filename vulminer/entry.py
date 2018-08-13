@@ -4,6 +4,7 @@
 import click
 import utils
 from data import Data
+from training import Trainer
 
 """
 Entry Point
@@ -19,8 +20,10 @@ def main(path, t):
     dataset = Data()
     dataset.load(path, t)
     dataset.prep()
-    print(len(dataset._vec_set[0]['vector']))
-    print(len(dataset._vec_set[0]['vector'][0]))
+    tr = Trainer()
+    tr.input_init(dataset._vec_set, 500, 50)
+    tr.training()
+
 
 
 if __name__ == '__main__':
