@@ -6,6 +6,7 @@ This file transfer code gadget to symbolic represention
 import re
 import copy
 import utils
+from logger import logger
 
 DEFINED = ['char', 'int', 'float', 'double', 'wchar', 'wchar_t', 'unionType', 'uint32_t', 'uint8_t', 'size_t'
         'char*', 'int*', 'float*', 'double*', 'wchar*', 'wcahr_t*', 'unionType*', 'uint32_t*', 'uint8_t*', 'size_t*']
@@ -67,8 +68,6 @@ def _var_replace(codes, var_list):
         syms.append(''.join(tokens))
     return syms
 
-
-
 def cgd2sym(cgd_set):
     sym_set = copy.deepcopy(cgd_set)
     for ind, cgd in enumerate(cgd_set):
@@ -76,6 +75,6 @@ def cgd2sym(cgd_set):
         var_list = _get_var(codes)
         syms = _var_replace(codes, var_list)
         sym_set[ind]['codes'] = syms
+    logger.info('get sym set success')
     return sym_set
-
 
