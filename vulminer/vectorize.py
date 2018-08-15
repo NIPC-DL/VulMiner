@@ -9,6 +9,7 @@ import os
 import copy
 import utils
 import gensim
+from logger import logger
 
 WHITE_LIST = ['cin', 'getenv', 'getenv_s', '_wgetenv', '_wgetenv_s', 'catgets', 'gets', 'getchar',
         'getc', 'getch', 'getche', 'kbhit', 'stdin', 'getdlgtext', 'getpass', 'scanf',
@@ -63,8 +64,10 @@ def sym2vec(sym_set):
     vec_set, sent_corpus = _split_and_mark(sym_set)
     if os.path.exists('words.model'):
         model = gensim.models.Word2Vec.load('words.model')
+        logger.info('load model success')
     else:
         model = _get_word_model(sent_corpus)
+        logger.info('get word model success')
         model.save('words.model')
     for ind, vec in enumerate(vec_set):
         r = []
@@ -83,4 +86,5 @@ def sym2vec(sym_set):
             else:
                 r = r[-TLEN:]
         vec_set[ind]['vector'] = r
+    logger.info('get vec set success')
     return vec_set

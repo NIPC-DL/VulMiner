@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 #coding: utf-8
 
-import logging
+import os
 
-
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+if not os.path.exists('.cache'):
+    os.mkdir('.cache')
+if not os.path.exists('.log'):
+    os.mkdir('.log')
