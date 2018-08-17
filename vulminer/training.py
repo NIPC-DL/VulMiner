@@ -10,7 +10,7 @@ from keras.optimizers import Adam
 from keras.utils import to_categorical
 #from sklearn.cross_validation import StratifiedKFold
 from sklearn.model_selection import KFold
-from metrics import f1, fpr, fnr, tpr, precision
+from metrics import f1
 
 class Trainer:
     def __init__(self, config):
@@ -29,12 +29,12 @@ class Trainer:
         np.random.seed(seed)
         k_folds = int(self._config['Model']['kfolds'])
         kf = KFold(n_splits=k_folds, shuffle=True, random_state=seed)
-        model = self._set_model()
         cross_score = []
         num = 0
         for train, test in kf.split([0 for x in range(self.y_set.shape[0])]):
             num  += 1
             logger.info('start {0} folds validation: {1}'.format(str(k_folds), str(num)))
+            model = self._set_model()
             model.fit(
                     self.x_set[train],
                     self.y_set[train],
@@ -70,7 +70,7 @@ class Trainer:
         model.compile(
                 optimizer=adam,
                 loss=self._config['Model']['loss'],
-                metrics=[fpr, fnr, tpr, precision, f1]
+                metrics=[f1]
                 )
         return model
 
