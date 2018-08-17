@@ -25,7 +25,9 @@ Deep Learning Framewrok for Vulnerability Mining
 
 ## WorkFlow
 1. git clone the repo
-`git clone https://github.com/NIPC-DL/VulMiner.git`
+```
+git clone https://github.com/NIPC-DL/VulMiner.git
+```
 
 2. create new branch to do your work
 ```
