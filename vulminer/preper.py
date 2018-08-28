@@ -173,7 +173,7 @@ def words_model_training(sym_set):
 def prep_wm():
     sym_set = []
     num = 0
-    with open('../Cache/sym.txt') as f:
+    with open('../Cache/sym_set.txt') as f:
         sym = []
         for line in f:
             if line[:-1] != '-----':
@@ -189,7 +189,7 @@ def prep_wm():
 def prep_vec():
     sym_set = []
     num = 0
-    with open('../Cache/sym.txt') as f:
+    with open('../Cache/sym_set.txt') as f:
         sym = []
         for line in f:
             if line[:-1] != '-----':

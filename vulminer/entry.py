@@ -33,7 +33,7 @@ def main(c, l):
     else:
         logger.error('no config found')
 
-    #data_manager = DataManager()
+    data_manager = DataManager()
     dataset = VulDataset()
 
     trainer = Trainer()
