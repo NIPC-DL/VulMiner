@@ -63,14 +63,15 @@ class DataManager(object):
         """
         file_list = []
         data_config = configer.getData()
-        for path, type_ in data_config['path']:
-            if os.path.isdir(path):
-                for file in glob(path + '/*.txt'):
-                    file_list.append([file, type_])
-            elif os.path.isfile(path):
-                file_list.append([path, type_])
+        for p, t in data_config:
+            if os.path.isdir(p):
+                for file in glob(p + '/*.txt'):
+                    file_list.append([file, t])
+            elif os.path.isfile(p):
+                file_list.append([p, t])
             else:
                 logger.warn("worry file path")
+        print(file_list)
         assert len(file_list) > 0
         return file_list
 

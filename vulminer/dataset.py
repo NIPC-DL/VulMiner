@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 
 class VulDataset(Dataset):
     def __init__(self, ):
-        dataset = np.load('.cache/dataset.npz')
+        dataset = np.load('../Cache/dataset.npz')
         x_set, y_set = dataset['arr_0'], dataset['arr_1']
         tmp_y = []
         for i in y_set:
