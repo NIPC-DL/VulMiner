@@ -8,7 +8,7 @@ from logger import logger
 from manager import DataManager
 from configer import configer
 from dataset import VulDataset
-from trainer import Trainer
+from trainer import Trainer_
 
 """
 Entry Point, using click module to create command line app
@@ -34,11 +34,17 @@ def main(c, l):
         logger.error('no config found')
 
     data_manager = DataManager()
-    dataset = VulDataset()
+    #train_dataset = VulDataset(train=True)
+    #test_dataset = VulDataset(train=False)
 
-    trainer = Trainer()
-    trainer.init()
-    trainer.fit(dataset)
+    #trainer = Trainer()
+    #trainer.init()
+    #trainer.load(train_dataset)
+    #trainer.fit()
+    #trainer.save()
+
+    tr = Trainer_()
+    tr.fit(5)
 
 if __name__ == '__main__':
     main()
