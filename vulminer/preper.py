@@ -5,7 +5,6 @@ import re
 import os
 import utils
 import gensim
-import h5py
 import numpy as np
 from logger import logger
 from configer import configer
@@ -149,13 +148,14 @@ def _ps_loader(file):
     return [[x[1:-1], x[-1]] for x in raw_set]
 
 def prep_sym(file, type_):
+    if os.path.exists('../Cache/sym_set.txt'):
+        return 0
     if type_ == 'ps':
         raw = _ps_loader(file)
     else:
         logger.warn("worry file type")
     sym_set = symbolize(raw)
     sym_save(sym_set)
-    words_model_training(sym_set)
     logger.info("symbolic dataset create success")
 
 def words_model_training(sym_set):
@@ -171,8 +171,9 @@ def words_model_training(sym_set):
     model.save('words.model')
 
 def prep_wm():
+    if os.path.exists('words.model'):
+        return 0
     sym_set = []
-    num = 0
     with open('../Cache/sym_set.txt') as f:
         sym = []
         for line in f:
@@ -181,10 +182,10 @@ def prep_wm():
             else:
                 sym_set.append([sym[:-1], sym[-1]])
                 sym = []
-            if len(sym_set) > 5000:
-                words_model_training(sym)
-                sym = []
-        words_model_training(sym)
+            if len(sym_set) > 20000:
+                words_model_training(sym_set)
+                sym_set = []
+        words_model_training(sym_set)
 
 def prep_vec():
     sym_set = []

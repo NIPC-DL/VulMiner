@@ -12,7 +12,7 @@ import numpy as np
 from glob import glob
 from logger import logger
 from configer import configer
-from preper import prep_sym, prep_wm
+from preper import prep_sym, prep_wm, prep_vec
 
 
 class DataManager(object):
@@ -35,7 +35,6 @@ class DataManager(object):
         # get file list
         file_list = self._get_file_list()
         for path, type_ in file_list:
-            print(path)
             fhash = utils.file_md5(path)
             assert len(fhash) > 0
             if fhash not in record['hash']:
@@ -71,7 +70,6 @@ class DataManager(object):
                 file_list.append([p, t])
             else:
                 logger.warn("worry file path")
-        print(file_list)
         assert len(file_list) > 0
         return file_list
 
