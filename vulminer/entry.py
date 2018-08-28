@@ -5,8 +5,10 @@ import click
 import utils
 import numpy as np
 from logger import logger
-from data import Data
-#from training import Trainer
+from manager import DataManager
+from configer import configer
+from dataset import VulDataset
+from trainer import Trainer
 
 """
 Entry Point, using click module to create command line app
@@ -27,17 +29,16 @@ BANNER = """
 def main(c, l):
     print(BANNER)
     if c:
-        config = utils.yaml_load(c)
+        configer.init(c)
     else:
         logger.error('no config found')
 
-    dataset = Data()
-    dataset.load(config['Data'])
+    #data_manager = DataManager()
+    dataset = VulDataset()
 
-    #trainer = Trainer()
-    #trainer.init(config)
-    #trainer.load(dataset.x_set, dataset.y_set)
-    #trainer.fit()
+    trainer = Trainer()
+    trainer.init()
+    trainer.fit(dataset)
 
 if __name__ == '__main__':
     main()

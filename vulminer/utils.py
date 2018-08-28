@@ -8,20 +8,18 @@ Utils Function
 import re
 import yaml
 import pprint
+import torch
 import hashlib
 
 
-def code_split(code):
-    return list(filter(lambda x: x not in [None, ''], re.split(r'(;|,|\s|\(|\[|-\>)', code)))
+def line_split(line):
+    return list(filter(lambda x: x not in [None, '', ' ', ';', '*'], re.split(r'(\(|\)|\s|\,|\;|\[|\*)', line)))
 
-def line_split(sentence):
-    return list(filter(lambda x: x not in [None, ''], re.split(r'(\*|;|!|&|,|\s|\(|\[|-\>)', sentence)))
-
-def remove_blank_and_empty(l):
-    return list(filter(lambda x: x not in [None, '', ' '], l))
+def line_split_plus(line):
+    return list(filter(lambda x: x not in [None, '', ' '], re.split(r'(\*|\;|\!|\&|\,|\s|\(|\]|\[|\)|\-\>)', line)))
 
 def remove_symbol(word):
-    return re.sub('[!&-,;\)\*\[\]]', '', word)
+    return re.sub('[\s!&-,;\)\*\[\]\(]', '', word)
 
 def ppt(s):
     pp = pprint.PrettyPrinter(indent=4)
@@ -38,11 +36,20 @@ def file_md5(file):
     return str(m.hexdigest())
 
 def yaml_load(path):
-    with open(path, 'r') as f:
-        data = yaml.load(f)
+    try:
+        with open(path, 'r') as f:
+            data = yaml.load(f)
+    except FileNotFoundError:
+        data = None
     return data
 
 def yaml_dump(data, path):
-    with open(path, 'w') as f:
-        yaml.dump(data, f)
-    return True
+    try:
+        with open(path, 'w') as f:
+            yaml.dump(data, f)
+    except FileNotFoundError:
+        logger.error('no path found')
+
+def one_hot_embedding(labels, num_classes):
+    hot = torch.eye(num_classes)
+    return list(hot[int(labels)])
