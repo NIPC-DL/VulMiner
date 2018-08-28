@@ -12,7 +12,7 @@ import numpy as np
 from glob import glob
 from logger import logger
 from configer import configer
-from preper import prep
+from preper import prep_sym, prep_wm
 
 
 class DataManager(object):
@@ -43,11 +43,13 @@ class DataManager(object):
                 cache_flag = True
                 record['hash'].append(fhash)
                 logger.info('New file {0} {1} found, add to cache'.format(path, type_))
-                prep(path, type_)
+                prep_sym(path, type_)
                 logger.info('{0} {1} add to cache success'.format(path, type_))
                 utils.yaml_dump(record, '.cache/record.yaml')
         if cache_flag:
             logger.info('Cache data update success')
+            prep_wm()
+            prep_vec()
         else:
             logger.info('Data up to date, use cache data')
 

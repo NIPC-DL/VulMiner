@@ -74,7 +74,7 @@ def symbolize(ps_set):
     return sym_set
 
 def sym_save(sym_set):
-    with open('data/sym_set.txt', 'a') as f:
+    with open('../Cache/sym_set.txt', 'a') as f:
         for syms, label in sym_set:
             for line in syms:
                 f.write(line + '\n')
@@ -148,7 +148,7 @@ def _ps_loader(file):
                 raw = []
     return [[x[1:-1], x[-1]] for x in raw_set]
 
-def prep(file, type_):
+def prep_sym(file, type_):
     if type_ == 'ps':
         raw = _ps_loader(file)
     else:
@@ -170,20 +170,35 @@ def words_model_training(sym_set):
         logger.info("Create words model success")
     model.save('words.model')
 
-if __name__ == '__main__':
-    #sym_set = []
-    #num = 0
-    #with open('data/sym.txt') as f:
-    #    sym = []
-    #    for line in f:
-    #        if line[:-1] != '-----':
-    #            sym.append(line[:-1])
-    #        else:
-    #            sym_set.append([sym[:-1], sym[-1]])
-    #            sym = []
-    #        if len(sym_set) > 5000:
-    #            break
-    #X, Y = vectorize(sym_set)
-    #np.savez(".cache/dataset.npz", X, Y)
-    pass
+def prep_wm():
+    sym_set = []
+    num = 0
+    with open('../Cache/sym.txt') as f:
+        sym = []
+        for line in f:
+            if line[:-1] != '-----':
+                sym.append(line[:-1])
+            else:
+                sym_set.append([sym[:-1], sym[-1]])
+                sym = []
+            if len(sym_set) > 5000:
+                words_model_training(sym)
+                sym = []
+        words_model_training(sym)
+
+def prep_vec():
+    sym_set = []
+    num = 0
+    with open('../Cache/sym.txt') as f:
+        sym = []
+        for line in f:
+            if line[:-1] != '-----':
+                sym.append(line[:-1])
+            else:
+                sym_set.append([sym[:-1], sym[-1]])
+                sym = []
+            if len(sym_set) > 5000:
+                break
+    X, Y = vectorize(sym_set)
+    np.savez("../Cache/dataset.npz", X, Y)
 
