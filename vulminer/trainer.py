@@ -82,7 +82,7 @@ def _get_data(kf):
     dataset = np.load('../Cache/dataset.npz')
     dsize = os.path.getsize('../Cache/dataset.npz')
     dsize = dsize/float(1024*1024*1024)
-    logger.info("load data {}|{:.2f}".format('5000', dsize))
+    logger.info("load data {}|{:.2f}Gb".format('5000', dsize))
     x_set, y_set = dataset['arr_0'], dataset['arr_1']
     rng = np.arange(x_set.shape[0])
     np.random.shuffle(rng)
@@ -167,8 +167,9 @@ class Trainer_():
         for i in range(kf):
             logger.info("[{}|{}] Folds Start".format(str(i+1), str(kf)))
             self.folds(kf)
-        f = open('result.txt')
+        f = open('result.txt', 'a')
         for k, v in self.res.items():
             f.write("{0}: {1}\n".format(k, sum(v)/len(v)))
             print("{}: {.2f}".format(k, sum(v)/len(v)))
+        f.close()
 
