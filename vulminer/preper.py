@@ -135,7 +135,6 @@ def vectorize(sym_set):
     return X, Y
 
 def _ps_loader(file):
-    data_config = configer.getData()
     raw_set = []
     with open(file) as f:
         raw = []
@@ -174,6 +173,8 @@ def prep_wm():
     if os.path.exists('words.model'):
         return 0
     sym_set = []
+    data_config = configer.getData()
+    load_rate = data_config['load_rate']
     with open('../Cache/sym_set.txt') as f:
         sym = []
         for line in f:
@@ -182,13 +183,15 @@ def prep_wm():
             else:
                 sym_set.append([sym[:-1], sym[-1]])
                 sym = []
-            if len(sym_set) > 20000:
+            if len(sym_set) > load_rate:
                 words_model_training(sym_set)
                 sym_set = []
         words_model_training(sym_set)
 
 def prep_vec():
     sym_set = []
+    data_config = configer.getData()
+    load_rate = data_config['load_rate']
     num = 0
     with open('../Cache/sym_set.txt') as f:
         sym = []
@@ -198,11 +201,13 @@ def prep_vec():
             else:
                 sym_set.append([sym[:-1], sym[-1]])
                 sym = []
-            if len(sym_set) > 50000:
+            if len(sym_set) > load_rate:
                 X, Y = vectorize(sym_set)
                 np.savez("../Cache/dataset{}.npz".format(num), X, Y)
+                logger.info("save {} in dataset{} success".format(len(sym_set), num))
                 num += 1
                 sym_set = []
         X, Y = vectorize(sym_set)
         np.savez("../Cache/dataset{}.npz".format(num), X, Y)
+        logger.info("save {} in dataset{} success".format(len(sym_set), num))
 

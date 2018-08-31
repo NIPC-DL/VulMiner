@@ -1,5 +1,9 @@
+import os
 import logging
 
+if not os.path.exists('.log'):
+    os.mkdir('.log')
+    open('.log/vm.log', 'a').close()
 
 LOG_FILE = '.log/vm.log'
 LOG_LEVEL = logging.DEBUG
