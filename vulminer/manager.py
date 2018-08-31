@@ -62,7 +62,7 @@ class DataManager(object):
         """
         file_list = []
         data_config = configer.getData()
-        for p, t in data_config:
+        for p, t in data_config['path']:
             if os.path.isdir(p):
                 for file in glob(p + '/*.txt'):
                     file_list.append([file, t])
