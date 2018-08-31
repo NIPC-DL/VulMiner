@@ -1,5 +1,7 @@
 Data: 
-    - ['/home/verf/WorkSpace/Data', 'ps']
+    path:
+        - ['/home/verf/WorkSpace/Data', 'ps']
+    load_rate: 50000
 
 Model:
     input_size: 100

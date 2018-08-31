@@ -24,6 +24,9 @@ class DataManager(object):
 
     def init(self):
         # load record
+
+        if not os.path.exists('.cache'):
+            os.mkdir('.cache')
         if os.path.exists('.cache/record.yaml'):
             record = utils.yaml_load('.cache/record.yaml')
             logger.info('record found, load record')
@@ -62,7 +65,7 @@ class DataManager(object):
         """
         file_list = []
         data_config = configer.getData()
-        for p, t in data_config:
+        for p, t in data_config['path']:
             if os.path.isdir(p):
                 for file in glob(p + '/*.txt'):
                     file_list.append([file, t])
