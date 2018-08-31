@@ -198,8 +198,11 @@ def prep_vec():
             else:
                 sym_set.append([sym[:-1], sym[-1]])
                 sym = []
-            if len(sym_set) > 5000:
-                break
-    X, Y = vectorize(sym_set)
-    np.savez("../Cache/dataset.npz", X, Y)
+            if len(sym_set) > 50000:
+                X, Y = vectorize(sym_set)
+                np.savez("../Cache/dataset{}.npz".format(num), X, Y)
+                num += 1
+                sym_set = []
+        X, Y = vectorize(sym_set)
+        np.savez("../Cache/dataset{}.npz".format(num), X, Y)
 
