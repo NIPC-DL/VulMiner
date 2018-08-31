@@ -183,7 +183,7 @@ def prep_wm():
             else:
                 sym_set.append([sym[:-1], sym[-1]])
                 sym = []
-            if len(sym_set) > load_rate:
+            if len(sym_set) == load_rate:
                 words_model_training(sym_set)
                 sym_set = []
         words_model_training(sym_set)
@@ -201,7 +201,7 @@ def prep_vec():
             else:
                 sym_set.append([sym[:-1], sym[-1]])
                 sym = []
-            if len(sym_set) > load_rate:
+            if len(sym_set) == load_rate:
                 X, Y = vectorize(sym_set)
                 np.savez("../Cache/dataset{}.npz".format(num), X, Y)
                 logger.info("save {} in dataset{} success".format(len(sym_set), num))
