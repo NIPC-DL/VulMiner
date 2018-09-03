@@ -24,7 +24,6 @@ class DataManager(object):
 
     def init(self):
         # load record
-
         if not os.path.exists('.cache'):
             os.mkdir('.cache')
         if os.path.exists('.cache/record.yaml'):
@@ -55,9 +54,8 @@ class DataManager(object):
         else:
             logger.info('Data up to date, use cache data')
 
-    def load_data(self, num):
+    def load_data(self):
         pass
-
 
     def _get_file_list(self):
         """
@@ -75,4 +73,5 @@ class DataManager(object):
                 logger.warn("worry file path")
         assert len(file_list) > 0
         return file_list
+
 
