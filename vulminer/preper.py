@@ -81,19 +81,6 @@ def sym_save(sym_set):
             f.write('-----\n')
     logger.debug("sym save success")
 
-#def _get_word_model(sentence_corpus):
-#    if os.path.exists('words.model'):
-#        model = gensim.models.Word2Vec.load('words.model')
-#        model.build_vocab(sentence_corpus, update=True)
-#        model.train(sentence_corpus, total_examples=model.corpus_count, epochs=model.iter)
-#        logger.info('train words model success')
-#    else:
-#        model = gensim.models.Word2Vec(sentence_corpus, size=100, window=5, min_count=0, workers=cpu_count(), iter=5)
-#        logger.info('create words model success')
-#    model.save('words.model')
-#    logger.info('save model success')
-#    return model
-
 def _word_model_train(sym_set):
     sentence_corpus = [y.split(' ') for x in sym_set for y in x[0]]
     if os.path.exists('words.model'):
@@ -170,8 +157,6 @@ def words_model_training(sym_set):
     model.save('words.model')
 
 def prep_wm():
-    if os.path.exists('words.model'):
-        return 0
     sym_set = []
     data_config = configer.getData()
     load_rate = data_config['load_rate']
