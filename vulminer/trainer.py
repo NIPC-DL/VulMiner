@@ -50,7 +50,6 @@ class Trainer_():
         self.dropout = config['dropout']
         self.learning_rate = config['learning_rate']
 
-
         self.res = {'acc':[], 'loss': [], 'prec': [], 'recall': [], 'f1': []}
 
     def folds(self, kf):
