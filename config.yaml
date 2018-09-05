@@ -1,7 +1,7 @@
 Data: 
     path:
-        - ['/home/verf/WorkSpace/Data', 'ps']
-    load_rate: 50000
+        - ['/home/nipcdl/WorkSpace/Data/api_func.txt', 'ps']
+    load_rate: 9999999
 
 Model:
     input_size: 100

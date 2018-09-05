@@ -43,8 +43,8 @@ def main(c, l):
     #trainer.fit()
     #trainer.save()
 
-    #tr = Trainer_()
-    #tr.fit(5)
+    tr = Trainer_()
+    tr.fit(5)
 
 if __name__ == '__main__':
     main()

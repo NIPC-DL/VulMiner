@@ -16,21 +16,21 @@ from ignite.metrics import CategoricalAccuracy, Precision, Recall, Loss
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
- def _get_data(kf):
-     dataset = np.load('../Cache/dataset.npz')
-     dsize = os.path.getsize('../Cache/dataset.npz')
-     x_set, y_set = dataset['arr_0'], dataset['arr_1']
-     rng = np.arange(x_set.shape[0])
-     np.random.shuffle(rng)
-     x_set_r = []
-     y_set_r = []
-     for i in rng:
-         x_set_r.append(x_set[i])
-         y_set_r.append(y_set[i])
-     x_set_r = np.asarray(x_set_r)
-     y_set_r = np.asarray(y_set_r)
-     pers = round((1.0/kf) * len(x_set_r))
-     return (x_set_r[pers:], y_set_r[pers:]), (x_set_r[:pers], y_set_r[:pers])
+def _get_data(kf):
+    dataset = np.load('../Cache/dataset0.npz')
+    dsize = os.path.getsize('../Cache/dataset0.npz')
+    x_set, y_set = dataset['arr_0'], dataset['arr_1']
+    rng = np.arange(x_set.shape[0])
+    np.random.shuffle(rng)
+    x_set_r = []
+    y_set_r = []
+    for i in rng:
+        x_set_r.append(x_set[i])
+        y_set_r.append(y_set[i])
+    x_set_r = np.asarray(x_set_r)
+    y_set_r = np.asarray(y_set_r)
+    pers = round((1.0/kf) * len(x_set_r))
+    return (x_set_r[pers:], y_set_r[pers:]), (x_set_r[:pers], y_set_r[:pers])
 
 def _get_data_loader(kf, batch_size):
     train, valid= _get_data(kf)
@@ -41,22 +41,22 @@ def _get_data_loader(kf, batch_size):
 class Trainer_():
     def __init__(self):
         config = configer.getModel()
-        input_size = config['input_size']
-        hidden_size = config['hidden_size']
-        num_layers = config['num_layers']
-        num_classes = config['num_classes']
+        self.input_size = config['input_size']
+        self.hidden_size = config['hidden_size']
+        self.num_layers = config['num_layers']
+        self.num_classes = config['num_classes']
         self.batch_size = config['batch_size']
         self.num_epochs = config['num_epochs']
-        dropout = config['dropout']
-        learning_rate = config['learning_rate']
+        self.dropout = config['dropout']
+        self.learning_rate = config['learning_rate']
 
 
         self.res = {'acc':[], 'loss': [], 'prec': [], 'recall': [], 'f1': []}
 
     def folds(self, kf):
-        model = BGRU(input_size, hidden_size, num_layers, num_classes, self.batch_size, dropout)
+        model = BGRU(self.input_size, self.hidden_size, self.num_layers, self.num_classes, self.batch_size, self.dropout)
         loss = nn.CrossEntropyLoss()
-        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        optimizer = torch.optim.Adam(model.parameters(), lr=self.learning_rate)
         train_loader, valid_loader = _get_data_loader(kf, self.batch_size)
         trainer = create_supervised_trainer(model, optimizer, loss, device=DEVICE)
         evaluator = create_supervised_evaluator(
@@ -108,6 +108,6 @@ class Trainer_():
         f = open('result.txt', 'a')
         for k, v in self.res.items():
             f.write("{0}: {1}\n".format(k, sum(v)/len(v)))
-            print("{}: {.2f}".format(k, sum(v)/len(v)))
+            print("{}: {:.2f}".format(k, sum(v)/len(v)))
         f.close()
 
