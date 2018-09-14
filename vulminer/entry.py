@@ -9,7 +9,6 @@ from manager import DataManager
 from configer import configer
 from dataset import VulDataset
 from trainer import Trainer_
-
 """
 Entry Point, using click module to create command line app
 """
@@ -23,9 +22,10 @@ BANNER = """
         |_| \_|_____|_|     \_____|    |_____/|______|
 """
 
+
 @click.command()
-@click.option('-c', help = 'config file path')
-@click.option('-l', default = '.log', help = 'log file path')
+@click.option('-c', help='config file path')
+@click.option('-l', default='.log', help='log file path')
 def main(c, l):
     print(BANNER)
     if c:
@@ -44,7 +44,8 @@ def main(c, l):
     #trainer.save()
 
     tr = Trainer_()
-    tr.fit(5)
+    tr.fit(10)
+
 
 if __name__ == '__main__':
     main()

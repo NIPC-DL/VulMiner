@@ -12,7 +12,6 @@ from multiprocessing import cpu_count
 from constant import DEFINED, KEYWORD, WHITE_LIST
 
 
-
 def _get_var_from_defined(tokens):
     defin = list(set([x for x in tokens if x in DEFINED]))
     var_list = []
@@ -20,10 +19,11 @@ def _get_var_from_defined(tokens):
     if defin:
         index = tokens.index(defin[0])
         try:
-            var_list.append(utils.remove_symbol(tokens[index+1]))
+            var_list.append(utils.remove_symbol(tokens[index + 1]))
         except IndexError:
             pass
     return [x for x in var_list if x not in KEYWORD + [None, '', ' ']]
+
 
 def _get_var_from_regexp(tokens):
     var_list = []
@@ -31,7 +31,11 @@ def _get_var_from_regexp(tokens):
         rep = re.search(r'^\w{1,10}_\w{1,10}[^(]$', tok)
         if rep:
             var_list.append(utils.remove_symbol(rep.group(0)))
-    return list(filter(lambda x: x not in KEYWORD + DEFINED + [None, '', ' '] and x.find('(') == -1, var_list))
+    return list(
+        filter(
+            lambda x: x not in KEYWORD + DEFINED + [None, '', ' '] and x.find('(') == -1,
+            var_list))
+
 
 def _get_func_from_regxp(tokens):
     func_list = []
@@ -41,6 +45,7 @@ def _get_func_from_regxp(tokens):
             func_list.append(utils.remove_symbol(rep.group(0)))
     return func_list
 
+
 def _get_var_func(codes):
     var_list = []
     func_list = []
@@ -49,6 +54,7 @@ def _get_var_func(codes):
         var_list += _get_var_from_defined(tokens) + _get_var_from_regexp(tokens)
         func_list += _get_func_from_regxp(tokens)
     return var_list, func_list
+
 
 def _var_replace(codes, var_list, func_list):
     syms = []
@@ -64,6 +70,7 @@ def _var_replace(codes, var_list, func_list):
     assert len(syms) > 0
     return syms
 
+
 def symbolize(ps_set):
     sym_set = []
     for codes, label in ps_set:
@@ -71,6 +78,7 @@ def symbolize(ps_set):
         syms = _var_replace(codes, var_list, func_list)
         sym_set.append([syms, label])
     return sym_set
+
 
 def sym_save(sym_set):
     with open('../Cache/sym_set.txt', 'a') as f:
@@ -81,18 +89,28 @@ def sym_save(sym_set):
             f.write('-----\n')
     logger.debug("sym save success")
 
+
 def _word_model_train(sym_set):
     sentence_corpus = [y.split(' ') for x in sym_set for y in x[0]]
     if os.path.exists('words.model'):
         model = gensim.models.Word2Vec.load('words.model')
         model.build_vocab(sentence_corpus, update=True)
-        model.train(sentence_corpus, total_examples=model.corpus_count, epochs=model.iter)
+        model.train(
+            sentence_corpus,
+            total_examples=model.corpus_count,
+            epochs=model.iter)
         logger.info('train words model success')
     else:
-        model = gensim.models.Word2Vec(sentence_corpus, size=100, min_count=0, workers=cpu_count(), iter=5)
+        model = gensim.models.Word2Vec(
+            sentence_corpus,
+            size=100,
+            min_count=0,
+            workers=cpu_count(),
+            iter=5)
         logger.info('create words model success')
     model.save('words.model')
     logger.info('save model success')
+
 
 def vectorize(sym_set):
     spl_set = []
@@ -111,7 +129,8 @@ def vectorize(sym_set):
         if len(vec_set) > T:
             x_set.append(vec_set[:T])
         else:
-            pad = np.asarray([[0 for x in range(100)] for y in range(T-len(vec_set))])
+            pad = np.asarray([[0 for x in range(100)]
+                              for y in range(T - len(vec_set))])
             vec_set.extend(pad)
             assert len(vec_set) == T
             x_set.append(vec_set)
@@ -121,17 +140,19 @@ def vectorize(sym_set):
     assert X.shape[0] == Y.shape[0]
     return X, Y
 
+
 def _ps_loader(file):
     raw_set = []
     with open(file) as f:
         raw = []
         for line in f:
-            if line[:-1] != '-'*30:
+            if line[:-1] != '-' * 33:
                 raw.append(line[:-1])
             else:
                 raw_set.append(raw)
                 raw = []
     return [[x[1:-1], x[-1]] for x in raw_set]
+
 
 def prep_sym(file, type_):
     if os.path.exists('../Cache/sym_set.txt'):
@@ -144,17 +165,21 @@ def prep_sym(file, type_):
     sym_save(sym_set)
     logger.info("symbolic dataset create success")
 
+
 def words_model_training(sym_set):
-    sent = [ y.split(' ') for x in sym_set for y in x[0] ]
+    sent = [y.split(' ') for x in sym_set for y in x[0]]
     if os.path.exists('words.model'):
         model = gensim.models.Word2Vec.load('words.model')
         model.build_vocab(sent, update=True)
-        model.train(sent, total_examples=model.corpus_count, epochs=model.epochs)
+        model.train(
+            sent, total_examples=model.corpus_count, epochs=model.epochs)
         logger.info("Update words model success")
     else:
-        model = gensim.models.Word2Vec(sent, size=100, min_count=0, workers=cpu_count())
+        model = gensim.models.Word2Vec(
+            sent, size=100, min_count=0, workers=cpu_count())
         logger.info("Create words model success")
     model.save('words.model')
+
 
 def prep_wm():
     sym_set = []
@@ -173,6 +198,7 @@ def prep_wm():
                 sym_set = []
         words_model_training(sym_set)
 
+
 def prep_vec():
     sym_set = []
     data_config = configer.getData()
@@ -189,10 +215,10 @@ def prep_vec():
             if len(sym_set) == load_rate:
                 X, Y = vectorize(sym_set)
                 np.savez("../Cache/dataset{}.npz".format(num), X, Y)
-                logger.info("save {} in dataset{} success".format(len(sym_set), num))
+                logger.info("save {} in dataset{} success".format(
+                    len(sym_set), num))
                 num += 1
                 sym_set = []
         X, Y = vectorize(sym_set)
         np.savez("../Cache/dataset{}.npz".format(num), X, Y)
         logger.info("save {} in dataset{} success".format(len(sym_set), num))
-
