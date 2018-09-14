@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-#coding: utf-8
+# coding: utf-8
 
 """
 provide data object
 """
 import os
-import sys
 import utils
-import hashlib
-import numpy as np
 from glob import glob
 from logger import logger
 from configer import configer
@@ -30,7 +27,7 @@ class DataManager(object):
             record = utils.yaml_load('.cache/record.yaml')
             logger.info('record found, load record')
         else:
-            record = {'hash':[],}
+            record = {'hash': []}
             utils.yaml_dump(record, '.cache/record.yaml')
             logger.info('no record found, create new record')
         cache_flag = False
@@ -43,7 +40,8 @@ class DataManager(object):
                 # add new data to cache
                 cache_flag = True
                 record['hash'].append(fhash)
-                logger.info('New file {0} {1} found, add to cache'.format(path, type_))
+                logger.info('New file {0} {1} found, add to cache'
+                            .format(path, type_))
                 prep_sym(path, type_)
                 logger.info('{0} {1} add to cache success'.format(path, type_))
                 utils.yaml_dump(record, '.cache/record.yaml')
@@ -73,5 +71,3 @@ class DataManager(object):
                 logger.warn("worry file path")
         assert len(file_list) > 0
         return file_list
-
-
