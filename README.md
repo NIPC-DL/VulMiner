@@ -45,22 +45,4 @@ $> python vulminer/entry.py -c config.yaml
 - [The Hitchhiker’s Guide to Python](https://docs.python-guide.org/)
 
 ## WorkFlow
-1. git clone the repo
-```
-git clone https://github.com/NIPC-DL/VulMiner.git
-```
-
-2. create new branch to do your work
-```
-cd VulMiner
-git checkout -b yourbranch develop
-```
-3. if your work finished
-```
-git add -A
-git commit -m 'some work'
-git checkout develop
-git pull
-git merge yourbranch
-git push origin develop
-```
+- [git-flow AVH Edition](https://github.com/petervanderdoes/gitflow-avh)

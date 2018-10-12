@@ -6,16 +6,15 @@ import os
 import utils
 import gensim
 import numpy as np
+from multiprocessing import cpu_count
 from logger import logger
 from configer import configer
-from multiprocessing import cpu_count
-from constant import DEFINED, KEYWORD, WHITE_LIST
+from constant import DEFINED, KEYWORD
 
 
 def _get_var_from_defined(tokens):
     defin = list(set([x for x in tokens if x in DEFINED]))
     var_list = []
-    var_str = ''
     if defin:
         index = tokens.index(defin[0])
         try:
@@ -222,3 +221,4 @@ def prep_vec():
         X, Y = vectorize(sym_set)
         np.savez("../Cache/dataset{}.npz".format(num), X, Y)
         logger.info("save {} in dataset{} success".format(len(sym_set), num))
+
