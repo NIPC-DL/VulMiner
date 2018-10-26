@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-VulMintr is the Deep Learning Framework for Vulnerability Mining
+This subpackage is the collection of Neural Network Models
 
 Author: Verf
 Email: verf@protonmail.com

@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-VulMintr is the Deep Learning Framework for Vulnerability Mining
+trainer.py - description
 
 Author: Verf
 Email: verf@protonmail.com
 License: MIT
 """
+
+
+class Trainer:
+    def __init__(self):
+        pass

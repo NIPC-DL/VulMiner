@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-VulMintr is the Deep Learning Framework for Vulnerability Mining
+convolution.py - Models of Convolution Neural Network
 
 Author: Verf
 Email: verf@protonmail.com
