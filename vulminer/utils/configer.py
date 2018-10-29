@@ -11,7 +11,7 @@ import yaml
 
 class Configer:
     def __init__(self):
-        self._config = {}
+        self._config = None
 
     def __getitem__(self, key):
         return self._config[key]

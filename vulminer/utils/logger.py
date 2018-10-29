@@ -6,15 +6,15 @@ Author: Verf
 Email: verf@protonmail.com
 License: MIT
 """
-import os
 import logging
 
 
 class Logger:
     """
-    Logger is the wrapper of logging.Logger, you can easily set level and formatter for 
-    logger and also just use it as logging.Logger. By default, logger only add the command 
-    line handler. Yon can add additional file handler by logger.addFileHandler.
+    Logger is the wrapper of logging.Logger, you can easily set level and
+    formatter for logger and also just use it as logging.Logger. By default,
+    logger only add the command line handler. Yon can add additional file
+    handler by logger.addFileHandler.
 
     """
 
@@ -64,7 +64,7 @@ class Logger:
 
         Args:
             path <str>: The path of log file
-        
+
         """
         file_handler = logging.FileHandler(path)
         file_handler.setLevel(self._level)

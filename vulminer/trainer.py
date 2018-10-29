@@ -6,8 +6,7 @@ Author: Verf
 Email: verf@protonmail.com
 License: MIT
 """
+import torch
+from ignite.engine import Events, create_supervised_trainer, create_supervised_evaluator
 
-
-class Trainer:
-    def __init__(self):
-        pass
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
