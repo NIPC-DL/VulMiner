@@ -2,7 +2,7 @@
 """
 VulMintr is the Deep Learning Framework for Vulnerability Mining
 
-Author: Verf
-Email: verf@protonmail.com
-License: MIT
+:Author: Verf
+:Email: verf@protonmail.com
+:License: MIT
 """

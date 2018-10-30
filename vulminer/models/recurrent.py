@@ -2,9 +2,9 @@
 """
 recurrent.py - Models of Recurrent Neural Network
 
-Author: Verf
-Email: verf@protonmail.com
-License: MIT
+:Author: Verf
+:Email: verf@protonmail.com
+:License: MIT
 """
 import torch
 import torch.nn as nn

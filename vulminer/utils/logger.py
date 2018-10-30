@@ -2,9 +2,9 @@
 """
 logger.py - Provide the log ability
 
-Author: Verf
-Email: verf@protonmail.com
-License: MIT
+:Author: Verf
+:Email: verf@protonmail.com
+:License: MIT
 """
 import logging
 

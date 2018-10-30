@@ -2,9 +2,9 @@
 """
 configer.py - Ths file provide the global configuration for covec
 
-Author: Verf
-Email: verf@protonmail.com
-License: MIT
+:Author: Verf
+:Email: verf@protonmail.com
+:License: MIT
 """
 import yaml
 

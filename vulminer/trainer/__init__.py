@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-convolution.py - Models of Convolution Neural Network
+This subpackage is the collection of trainer
 
 :Author: Verf
 :Email: verf@protonmail.com
