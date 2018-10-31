@@ -7,9 +7,7 @@ This subpackage is the collection of some usefully utils
 :License: MIT
 """
 from .logger import logger
-from .configer import configer
 
 __all__ = [
     'logger',
-    'configer',
 ]

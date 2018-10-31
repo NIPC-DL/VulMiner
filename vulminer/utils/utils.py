@@ -9,7 +9,8 @@ utils.py - The collection of some usefully functions
 import os
 
 
-def ensure_path_exist(path):
+def path_check(path):
+    """Check and ensure the path exists"""
     path = os.path.expanduser(path)
     if not os.path.exists(path):
         os.makedirs(path)

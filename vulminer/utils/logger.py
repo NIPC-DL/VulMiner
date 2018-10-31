@@ -8,6 +8,15 @@ logger.py - Provide the log ability
 """
 import logging
 
+LEVEL = {
+    'notest': logging.NOTSET,
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL,
+}
+
 
 class Logger:
     """
@@ -21,10 +30,9 @@ class Logger:
     def __init__(self):
         self._level = logging.INFO
         self._formatter = logging.Formatter(
-            '%(asctime)s %(filename)s %(lineno)d %(levelname)s %(message)s')
+            '%(asctime)s %(levelname)s %(message)s')
         self._logger = logging.getLogger(__name__)
         self._logger.setLevel(self._level)
-        self.addCmdHandler()
 
     def __getattr__(self, methods):
         return getattr(self._logger, methods)
@@ -35,8 +43,8 @@ class Logger:
 
     @level.setter
     def level(self, lv):
-        if lv in list(range(0, 60, 10)):
-            self._level = lv
+        if lv in LEVEL.keys():
+            self._level = LEVEL[lv]
             self._logger.setLevel(self._level)
         else:
             raise ValueError(f'{lv} is not a correct logging level')
@@ -59,7 +67,7 @@ class Logger:
         cmd_handler.setFormatter(self._formatter)
         self._logger.addHandler(cmd_handler)
 
-    def addFileHandler(self, path='/var/log/vulminer.log'):
+    def addFileHandler(self, path='vulminer.log'):
         """add file handler for logger
 
         Args:
