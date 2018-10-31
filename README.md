@@ -3,9 +3,7 @@ Deep Learning Framewrok for Vulnerability Mining
 
 ## Dependence
 ```
-Python3.6+
-click
-pyyaml
+Python ≥ 3.6
 pytorch
 pytorch-ignite
 gensim
@@ -13,31 +11,17 @@ gensim
 
 ## User Guide
 0. clone current repo
+```bash
+git clone https://github.com/NIPC-DL/VulMiner.git
+cd VulMiner
 ```
-$> git clone https://github.com/NIPC-DL/VulMiner.git
-$> cd VulMiner
-```
-1. Edit the config.yaml (if not exist, create it)
-Eg:
-```yaml
-Data: 
-    path:
-        - ['<Data Path>', '<Data Type>']
-    load_rate: 50000
-
-Model:
-    input_size: 100
-    hidden_size: 128
-    num_layers: 2
-    num_classes: 2
-    batch_size: 128
-    num_epochs: 5
-    dropout: 0.2
-    learning_rate: 0.01
+1. copy the example main file and change it
+```bash
+mv main-example.py main.py
 ```
 2. run
-```
-$> python vulminer/entry.py -c config.yaml
+```bash
+python main.py
 ```
 
 ## Style Guide
