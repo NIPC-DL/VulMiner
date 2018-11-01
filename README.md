@@ -18,7 +18,7 @@ cd VulMiner
 ```
 1. copy the example main file and change it
 ```bash
-mv main-example.py main.py
+cp main-example.py main.py
 ```
 2. run
 ```bash
