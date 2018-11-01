@@ -7,6 +7,7 @@ Python ≥ 3.6
 pytorch
 pytorch-ignite
 gensim
+tqdm
 ```
 
 ## User Guide
