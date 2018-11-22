@@ -27,8 +27,8 @@ class GRU(nn.Module):
             self.num_classes,
         )
 
-    def forward(self, train_dataset):
-        output, _ = self.gru(train_dataset)
+    def forward(self, input):
+        output, _ = self.gru(input)
         output = self.dense(output[:, -1, :])
         return output
 
@@ -52,8 +52,8 @@ class BGRU(nn.Module):
             self.num_classes,
         )
 
-    def forward(self, train_dataset):
-        output, _ = self.bgru(train_dataset)
+    def forward(self, input):
+        output, _ = self.bgru(input)
         output = self.dense(output[:, -1, :])
         return output
 
@@ -77,12 +77,12 @@ class LSTM(nn.Module):
             self.num_classes,
         )
 
-    def forward(self, train_dataset):
-        hidden = torch.zeros(self.num_layers, train_dataset.size(0),
+    def forward(self, input):
+        hidden = torch.zeros(self.num_layers, input.size(0),
                              self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers, train_dataset.size(0),
+        c0 = torch.zeros(self.num_layers, input.size(0),
                          self.hidden_size).to(device)
-        output, _ = self.lstm(train_dataset, (hidden, c0))
+        output, _ = self.lstm(input, (hidden, c0))
         output = self.dense(output[:, -1, :])
         return output
 
@@ -106,11 +106,11 @@ class BLSTM(nn.Module):
             self.num_classes,
         )
 
-    def forward(self, train_dataset):
-        hidden = torch.zeros(self.num_layers * 2, train_dataset.size(0),
+    def forward(self, input):
+        hidden = torch.zeros(self.num_layers * 2, input.size(0),
                              self.hidden_size).to(device)
-        c0 = torch.zeros(self.num_layers * 2, train_dataset.size(0),
+        c0 = torch.zeros(self.num_layers * 2, input.size(0),
                          self.hidden_size).to(device)
-        output, _ = self.blstm(train_dataset, (hidden, c0))
+        output, _ = self.blstm(input, (hidden, c0))
         output = self.dense(output[:, -1, :])
         return output
