@@ -16,6 +16,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from ignite.engine import Events, create_supervised_trainer, create_supervised_evaluator
 from ignite.metrics import Loss
 from vulminer.utils import logger
+from .treeloader import TreeLoader
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -138,9 +139,16 @@ class Trainer:
                                 f'{model_name.lower()}_nn{i+1}.pt'))
             else:  #just training dataset and valid model py valid set
                 self._folds_bar = None
-                train = DataLoader(self._dataset, **self._loader_args)
-                valid = DataLoader(self._valid, **
-                                   self._loader_args) if self._valid else None
+                if 'tree' in model_name.lower():
+                    train = TreeLoader(self._dataset, **self._loader_args)
+                    valid = TreeLoader(
+                        self._valid, **
+                        self._loader_args) if self._valid else None
+                else:
+                    train = DataLoader(self._dataset, **self._loader_args)
+                    valid = DataLoader(
+                        self._valid, **
+                        self._loader_args) if self._valid else None
                 nn = self._training(model, train, valid=valid)
                 if save:  # save the trained model
                     torch.save(nn.state_dict(),
