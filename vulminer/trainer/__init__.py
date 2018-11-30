@@ -6,7 +6,7 @@ This subpackage is the collection of trainer
 :Email: verf@protonmail.com
 :License: MIT
 """
-from .trainer import Trainer
+from .mytrainer import Trainer
 
 __all__ = [
     'Trainer',

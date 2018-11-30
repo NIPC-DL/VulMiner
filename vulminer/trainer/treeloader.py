@@ -24,14 +24,27 @@ class _DataLoaderIter:
         return batch
 
 
-class TreeLoader:
-    def __init__(self, dataset, batch_size, shuffle=False):
+class TreeLoader(object):
+    def __init__(self,
+                 dataset,
+                 batch_size,
+                 shuffle=False,
+                 sampler=None,
+                 batch_sampler=None,
+                 drop_last=False):
         self.dataset = dataset
         self.batch_size = batch_size
 
-        self.sampler = RandomSampler(
-            dataset) if shuffle else SequentialSampler(dataset)
-        self.batch_sampler = BatchSampler(self.sampler, batch_size, False)
+        if batch_sampler is None:
+            if sampler is None:
+                if shuffle:
+                    sampler = RandomSampler(dataset)
+                else:
+                    sampler = SequentialSampler(dataset)
+            batch_sampler = BatchSampler(sampler, batch_size, drop_last)
+
+        self.sampler = sampler
+        self.batch_sampler = batch_sampler
 
     def __iter__(self):
         return _DataLoaderIter(self)

@@ -105,6 +105,7 @@ class Trainer:
         # train model from models
         for model in self._models:
             model_name = model['nn'].__class__.__name__
+            self.model_name = model_name
             # create model bar to show model progress
             epoch = model['epoch']
             model_len = int(
@@ -261,20 +262,33 @@ class Trainer:
         
         """
         size = len(self._dataset)
+        print(self._dataset[1])
         indices = list(range(size))
         np.random.shuffle(indices)
         split = int(np.floor(size / folds))
         train_idx, valid_idx = indices[:-split], indices[-split:]
         train_sampler = SubsetRandomSampler(train_idx)
         valid_sampler = SubsetRandomSampler(valid_idx)
-        train_loader = DataLoader(
-            self._dataset,
-            sampler=train_sampler,
-            shuffle=False,
-            **self._loader_args)
-        valid_loader = DataLoader(
-            self._dataset,
-            sampler=valid_sampler,
-            shuffle=False,
-            **self._loader_args)
+        if 'tree' in self.model_name.lower():
+            train_loader = TreeLoader(
+                self._dataset,
+                sampler=train_sampler,
+                shuffle=False,
+                **self._loader_args)
+            valid_loader = TreeLoader(
+                self._dataset,
+                sampler=valid_sampler,
+                shuffle=False,
+                **self._loader_args)
+        else:
+            train_loader = DataLoader(
+                self._dataset,
+                sampler=train_sampler,
+                shuffle=False,
+                **self._loader_args)
+            valid_loader = DataLoader(
+                self._dataset,
+                sampler=valid_sampler,
+                shuffle=False,
+                **self._loader_args)
         return train_loader, valid_loader

@@ -10,9 +10,9 @@ import torch
 import torch.nn as nn
 
 
-class CSTLSTM(nn.Module):
+class CSTreeLSTM(nn.Module):
     def __init__(self, input_size, hidden_size):
-        super(CSTLSTM, self).__init__()
+        super(CSTreeLSTM, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
 
@@ -26,14 +26,14 @@ class CSTLSTM(nn.Module):
     def node_forward(self, input):
         ch = [child.h for child in input.children]
         cc = [child.c for child in input.children]
-        h = torch.sum(ch)
+        h = sum(ch)
         x = input.vector
         xh = torch.cat((x, h), 0)
         i = self.sigmod(self.wi(xh))
         fl = [self.sigmod(self.wf(torch.cat((x, k), 0))) for k in ch]
         o = self.sigmod(self.wo(xh))
         u = self.tanh(self.wu(xh))
-        c = i * u + torch.sum([f * c for f, c in zip(fl, cc)])
+        c = i * u + sum([f * c for f, c in zip(fl, cc)])
         h = o * self.tanh(c)
         return h, c
 
@@ -55,3 +55,19 @@ class CSTLSTM(nn.Module):
             else:
                 child.h, child.c = self.leaf_forward(child)
         return self.node_forward(input)
+
+
+class TNN(nn.Module):
+    def __init__(self, input_size, hidden_size, num_classses):
+        super(TNN, self).__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+        self.num_classses = num_classses
+
+        self.tlstm = CSTreeLSTM(input_size, hidden_size)
+        self.dense = nn.Linear(hidden_size, num_classses)
+
+    def forward(self, input):
+        output, _ = self.tlstm(input)
+        output = self.dense(output)
+        return output
