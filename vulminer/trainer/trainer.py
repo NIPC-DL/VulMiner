@@ -262,7 +262,6 @@ class Trainer:
         
         """
         size = len(self._dataset)
-        print(self._dataset[1])
         indices = list(range(size))
         np.random.shuffle(indices)
         split = int(np.floor(size / folds))

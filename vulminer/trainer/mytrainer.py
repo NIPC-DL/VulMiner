@@ -53,16 +53,26 @@ class Trainer(object):
             for idx, batch in enumerate(train):
                 tloss = 0.0
                 for input, label in batch:
-                    print(input)
+                    input = input.to(dev)
+                    label = label.to(dev)
                     optimizer.zero_grad()
                     output = nn(input)
                     err = loss(output, label)
-                    tloss += err.item()
                     err.backward()
-                print(tloss / epoch)
                 optimizer.step()
                 optimizer.zero_grad()
             print(f'epoch {i+1} fininsed')
+
+    def _testing(self, valid, nn):
+        y_pred = []
+        y = []
+        for input, label in valid:
+            input = input.to(dev)
+            label = label.to(dev)
+            output = nn(output)
+            y_pred.append(torch.max(output, -1))
+            y.append(torch.max(y, -1))
+        return y_pred, y
 
     def _validation(self):
         pass

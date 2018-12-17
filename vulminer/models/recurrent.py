@@ -9,7 +9,7 @@ recurrent.py - Models of Recurrent Neural Network
 import torch
 import torch.nn as nn
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class GRU(nn.Module):
@@ -79,9 +79,9 @@ class LSTM(nn.Module):
 
     def forward(self, input):
         hidden = torch.zeros(self.num_layers, input.size(0),
-                             self.hidden_size).to(device)
+                             self.hidden_size).to(dev)
         c0 = torch.zeros(self.num_layers, input.size(0),
-                         self.hidden_size).to(device)
+                         self.hidden_size).to(dev)
         output, _ = self.lstm(input, (hidden, c0))
         output = self.dense(output[:, -1, :])
         return output
@@ -108,9 +108,9 @@ class BLSTM(nn.Module):
 
     def forward(self, input):
         hidden = torch.zeros(self.num_layers * 2, input.size(0),
-                             self.hidden_size).to(device)
+                             self.hidden_size).to(dev)
         c0 = torch.zeros(self.num_layers * 2, input.size(0),
-                         self.hidden_size).to(device)
+                         self.hidden_size).to(dev)
         output, _ = self.blstm(input, (hidden, c0))
         output = self.dense(output[:, -1, :])
         return output
