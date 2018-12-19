@@ -59,6 +59,7 @@ class Trainer(object):
                     output = nn(input)
                     err = loss(output, label)
                     err.backward()
+                    tloss += err.item()
                 optimizer.step()
                 optimizer.zero_grad()
             print(f'epoch {i+1} fininsed')
