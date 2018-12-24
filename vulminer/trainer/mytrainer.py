@@ -8,8 +8,10 @@ mytrainer.py - description
 """
 import torch
 import pathlib
+from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import Dataset, DataLoader
 from .treeloader import TreeLoader
+from vulminer.utils import logger
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -41,11 +43,22 @@ class Trainer(object):
         else:
             self._models.append(model)
 
-    def fit(self):
+    def fit(self, folds=None):
         for model in self._models:
-            train = TreeLoader(self._dataset, batch_size=50)
-            self._training(train, model['nn'], model['optimizer'],
-                           model['loss'], model['epoch'])
+            if folds and isinstance(folds, int):
+                for i in range(folds):
+                    logger.info(f'Start [{i+1}/{folds}] fold')
+                    train, valid = self._get_loader(folds)
+                    nn = self._training(train, model['nn'], model['optimizer'],
+                                        model['loss'], model['epoch'])
+                    y_pred, y = self._testing(valid, nn)
+                    with open(str(root / 'res.txt'), 'w') as f:
+                        for yp, y in zip(y_pred, y):
+                            f.write(str(yp) + ' ' + str(y) + '\n')
+            else:
+                train = TreeLoader(self._dataset, batch_size=50)
+                self._training(train, model['nn'], model['optimizer'],
+                               model['loss'], model['epoch'])
 
     def _training(self, train, nn, optimizer, loss, epoch):
         for i in range(epoch):
@@ -65,6 +78,7 @@ class Trainer(object):
                 optimizer.step()
                 optimizer.zero_grad()
             print(f'epoch {i+1} fininsed')
+        return nn
 
     def _testing(self, valid, nn):
         y_pred = []
@@ -79,3 +93,41 @@ class Trainer(object):
 
     def _validation(self):
         pass
+
+    def _get_loader(self, folds):
+        """Get dataloader by given folds
+        
+        Args:
+            folds (int): n-folds validation
+        
+        """
+        size = len(self._dataset)
+        indices = list(range(size))
+        np.random.shuffle(indices)
+        split = int(np.floor(size / folds))
+        train_idx, valid_idx = indices[:-split], indices[-split:]
+        train_sampler = SubsetRandomSampler(train_idx)
+        valid_sampler = SubsetRandomSampler(valid_idx)
+        if 'tree' in self.model_name.lower():
+            train_loader = TreeLoader(
+                self._dataset,
+                sampler=train_sampler,
+                shuffle=False,
+                **self._loader_args)
+            valid_loader = TreeLoader(
+                self._dataset,
+                sampler=valid_sampler,
+                shuffle=False,
+                **self._loader_args)
+        else:
+            train_loader = DataLoader(
+                self._dataset,
+                sampler=train_sampler,
+                shuffle=False,
+                **self._loader_args)
+            valid_loader = DataLoader(
+                self._dataset,
+                sampler=valid_sampler,
+                shuffle=False,
+                **self._loader_args)
+        return train_loader, valid_loader
