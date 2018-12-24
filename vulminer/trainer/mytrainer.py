@@ -123,13 +123,7 @@ class Trainer(object):
                 **self._loader_args)
         else:
             train_loader = DataLoader(
-                self._dataset,
-                sampler=train_sampler,
-                shuffle=False,
-                **self._loader_args)
+                self._dataset, sampler=train_sampler, shuffle=False)
             valid_loader = DataLoader(
-                self._dataset,
-                sampler=valid_sampler,
-                shuffle=False,
-                **self._loader_args)
+                self._dataset, sampler=valid_sampler, shuffle=False)
         return train_loader, valid_loader
