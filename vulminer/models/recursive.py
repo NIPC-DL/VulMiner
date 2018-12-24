@@ -62,9 +62,9 @@ class CSTreeLSTM(nn.Module):
         return self.node_forward(input)
 
 
-class CSTLSTMNN(nn.Module):
+class CSTLTNN(nn.Module):
     def __init__(self, input_size, hidden_size, num_classses):
-        super(CSTLSTMNN, self).__init__()
+        super(CSTLTNN, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_classses = num_classses
@@ -140,9 +140,9 @@ class NaryTreeLSTM(nn.Module):
         return self.node_forward(input)
 
 
-class NTLSTMNN(nn.Module):
+class NTLTNN(nn.Module):
     def __init__(self, input_size, hidden_size, num_classses):
-        super(NTLSTMNN, self).__init__()
+        super(NTLTNN, self).__init__()
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.num_classses = num_classses

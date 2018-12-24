@@ -46,6 +46,7 @@ class Trainer(object):
 
     def fit(self, folds=None):
         for model in self._models:
+            self.model_name = model.__class__.__name__
             if folds and isinstance(folds, int):
                 for i in range(folds):
                     logger.info(f'Start [{i+1}/{folds}] fold')
