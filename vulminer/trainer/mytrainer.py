@@ -110,7 +110,7 @@ class Trainer(object):
         train_idx, valid_idx = indices[:-split], indices[-split:]
         train_sampler = SubsetRandomSampler(train_idx)
         valid_sampler = SubsetRandomSampler(valid_idx)
-        if 'tree' in self.model_name.lower():
+        if 'tnn' in self.model_name.lower():
             train_loader = TreeLoader(
                 self._dataset,
                 sampler=train_sampler,
