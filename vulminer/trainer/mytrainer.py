@@ -46,7 +46,7 @@ class Trainer(object):
 
     def fit(self, folds=None):
         for model in self._models:
-            self.model_name = model.__class__.__name__
+            self.model_name = model['nn'].__class__.__name__
             print(self.model_name)
             if folds and isinstance(folds, int):
                 for i in range(folds):
