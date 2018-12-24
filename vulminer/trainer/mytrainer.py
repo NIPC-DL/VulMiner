@@ -113,9 +113,9 @@ class Trainer(object):
         valid_sampler = SubsetRandomSampler(valid_idx)
         if 'tnn' in self.model_name.lower():
             train_loader = TreeLoader(
-                self._dataset, sampler=train_sampler, shuffle=False)
+                self._dataset, 50, sampler=train_sampler, shuffle=False)
             valid_loader = TreeLoader(
-                self._dataset, sampler=valid_sampler, shuffle=False)
+                self._dataset, 50, sampler=valid_sampler, shuffle=False)
         else:
             train_loader = DataLoader(
                 self._dataset, sampler=train_sampler, shuffle=False)
