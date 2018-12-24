@@ -47,6 +47,7 @@ class Trainer(object):
     def fit(self, folds=None):
         for model in self._models:
             self.model_name = model.__class__.__name__
+            print(self.model_name)
             if folds and isinstance(folds, int):
                 for i in range(folds):
                     logger.info(f'Start [{i+1}/{folds}] fold')
@@ -112,15 +113,9 @@ class Trainer(object):
         valid_sampler = SubsetRandomSampler(valid_idx)
         if 'tnn' in self.model_name.lower():
             train_loader = TreeLoader(
-                self._dataset,
-                sampler=train_sampler,
-                shuffle=False,
-                **self._loader_args)
+                self._dataset, sampler=train_sampler, shuffle=False)
             valid_loader = TreeLoader(
-                self._dataset,
-                sampler=valid_sampler,
-                shuffle=False,
-                **self._loader_args)
+                self._dataset, sampler=valid_sampler, shuffle=False)
         else:
             train_loader = DataLoader(
                 self._dataset, sampler=train_sampler, shuffle=False)
