@@ -76,7 +76,7 @@ class Trainer(object):
                     err.backward()
                     tloss += err.item()
                 if idx % 10 == 0:
-                    print(tloss)
+                    logger.info(f'loss: {tloss}')
                 optimizer.step()
                 optimizer.zero_grad()
             print(f'epoch {i+1} fininsed')
