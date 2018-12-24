@@ -8,6 +8,7 @@ mytrainer.py - description
 """
 import torch
 import pathlib
+import numpy as np
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import Dataset, DataLoader
 from .treeloader import TreeLoader
@@ -52,7 +53,7 @@ class Trainer(object):
                     nn = self._training(train, model['nn'], model['optimizer'],
                                         model['loss'], model['epoch'])
                     y_pred, y = self._testing(valid, nn)
-                    with open(str(root / 'res.txt'), 'w') as f:
+                    with open(str(self._root / 'res.txt')) as f:
                         for yp, y in zip(y_pred, y):
                             f.write(str(yp) + ' ' + str(y) + '\n')
             else:
