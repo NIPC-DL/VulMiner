@@ -47,21 +47,26 @@ class Trainer(object):
     def fit(self, folds=None):
         for model in self._models:
             self.model_name = model['nn'].__class__.__name__
+            self.nn = model['nn']
+            self.opti = model['optimizer']
+            self.loss = model['loss']
+            self.batch_size = model['batch_size']
+            self.epoch = model['epoch']
             print(self.model_name)
             if folds and isinstance(folds, int):
                 for i in range(folds):
                     logger.info(f'Start [{i+1}/{folds}] fold')
                     train, valid = self._get_loader(folds)
-                    nn = self._training(train, model['nn'], model['optimizer'],
-                                        model['loss'], model['epoch'])
+                    nn = self._training(train, self.nn, self.opti, self.loss,
+                                        self.epoch)
                     y_pred, y = self._testing(valid, nn)
                     with open(str(self._root / 'res.txt')) as f:
                         for yp, y in zip(y_pred, y):
                             f.write(str(yp) + ' ' + str(y) + '\n')
             else:
-                train = TreeLoader(self._dataset, batch_size=50)
-                self._training(train, model['nn'], model['optimizer'],
-                               model['loss'], model['epoch'])
+                train = TreeLoader(self._dataset, batch_size=self.batch_size)
+                self._training(train, self.nn, self.opti, self.loss,
+                               self.epoch)
 
     def _training(self, train, nn, optimizer, loss, epoch):
         for i in range(epoch):
@@ -76,7 +81,7 @@ class Trainer(object):
                     err = loss(output, label)
                     err.backward()
                     tloss += err.item()
-                if idx % 10 == 0:
+                if idx % 5 == 0:
                     logger.info(f'loss: {tloss}')
                 optimizer.step()
                 optimizer.zero_grad()
@@ -113,9 +118,15 @@ class Trainer(object):
         valid_sampler = SubsetRandomSampler(valid_idx)
         if 'tnn' in self.model_name.lower():
             train_loader = TreeLoader(
-                self._dataset, 50, sampler=train_sampler, shuffle=False)
+                self._dataset,
+                self.batch_size,
+                sampler=train_sampler,
+                shuffle=False)
             valid_loader = TreeLoader(
-                self._dataset, 50, sampler=valid_sampler, shuffle=False)
+                self._dataset,
+                self.batch_size,
+                sampler=valid_sampler,
+                shuffle=False)
         else:
             train_loader = DataLoader(
                 self._dataset, sampler=train_sampler, shuffle=False)
