@@ -22,9 +22,10 @@ def tree_collate(batch):
 
 
 class Trainer(object):
-    def __init__(self, root, dataset=None):
+    def __init__(self, root, dataset=None, device=dev):
         self._root = pathlib.Path(root).expanduser()
         self._root.mkdir(parents=True, exist_ok=True)
+        self._device = device
         self._models = list()
 
     def addData(self, dataset, valid=None):
@@ -56,21 +57,7 @@ class Trainer(object):
             self.loss = model['loss']
             self.batch_size = model['batch_size']
             self.epoch = model['epoch']
-
-            if folds and isinstance(folds, int):
-                for i in range(folds):
-                    logger.info(f'Start [{i+1}/{folds}] fold')
-                    train, valid = self._get_loader(folds)
-                    nn = self._training(train, self.nn, self.opti, self.loss,
-                                        self.epoch)
-                    y_pred, y = self._testing(valid, nn)
-                    with open(str(self._root / 'res.txt')) as f:
-                        for yp, y in zip(y_pred, y):
-                            f.write(str(yp) + ' ' + str(y) + '\n')
-            else:
-                train = TreeLoader(self._dataset, batch_size=self.batch_size)
-                self._training(train, self.nn, self.opti, self.loss,
-                               self.epoch)
+            pass
 
     def _training(self, train, nn, optimizer, loss, epoch):
         for i in range(epoch):
@@ -103,16 +90,7 @@ class Trainer(object):
             y.append(torch.max(y, -1))
         return y_pred, y
 
-    def _validation(self):
-        pass
-
-    def _get_loader(self, folds):
-        """Get dataloader by given folds
-        
-        Args:
-            folds (int): n-folds validation
-        
-        """
+    def _kfolds(self, folds):
         size = len(self._dataset)
         indices = list(range(size))
         np.random.shuffle(indices)
@@ -120,20 +98,4 @@ class Trainer(object):
         train_idx, valid_idx = indices[:-split], indices[-split:]
         train_sampler = SubsetRandomSampler(train_idx)
         valid_sampler = SubsetRandomSampler(valid_idx)
-        if 'tnn' in self.model_name.lower():
-            train_loader = TreeLoader(
-                self._dataset,
-                self.batch_size,
-                sampler=train_sampler,
-                shuffle=False)
-            valid_loader = TreeLoader(
-                self._dataset,
-                self.batch_size,
-                sampler=valid_sampler,
-                shuffle=False)
-        else:
-            train_loader = DataLoader(
-                self._dataset, sampler=train_sampler, shuffle=False)
-            valid_loader = DataLoader(
-                self._dataset, sampler=valid_sampler, shuffle=False)
-        return train_loader, valid_loader
+        return train_sampler, valid_sampler
