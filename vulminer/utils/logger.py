@@ -6,6 +6,7 @@ logger.py - Provide the log ability
 :Email: verf@protonmail.com
 :License: MIT
 """
+import pathlib
 import logging
 
 LEVEL = {
@@ -74,6 +75,9 @@ class Logger:
             path <str>: The path of log file
 
         """
+        path = pathlib.Path(path).expanduser()
+        if not path.exists():
+            path.touch()
         file_handler = logging.FileHandler(path)
         file_handler.setLevel(self._level)
         file_handler.setFormatter(self._formatter)

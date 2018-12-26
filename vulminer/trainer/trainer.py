@@ -17,6 +17,10 @@ from vulminer.utils import logger
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+def tree_collate(batch):
+    pass
+
+
 class Trainer(object):
     def __init__(self, root, dataset=None):
         self._root = pathlib.Path(root).expanduser()
@@ -52,7 +56,7 @@ class Trainer(object):
             self.loss = model['loss']
             self.batch_size = model['batch_size']
             self.epoch = model['epoch']
-            print(self.model_name)
+
             if folds and isinstance(folds, int):
                 for i in range(folds):
                     logger.info(f'Start [{i+1}/{folds}] fold')
