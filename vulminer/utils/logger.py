@@ -76,6 +76,7 @@ class Logger:
 
         """
         path = pathlib.Path(path).expanduser()
+        print(str(path))
         if not path.exists():
             path.touch()
         file_handler = logging.FileHandler(path)

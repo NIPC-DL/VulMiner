@@ -18,7 +18,7 @@ dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 def tree_collate(batch):
-    pass
+    return batch
 
 
 class Trainer(object):
@@ -52,16 +52,26 @@ class Trainer(object):
     def fit(self, folds=None):
         for model in self._models:
             self.model_name = model['nn'].__class__.__name__
-            self.nn = model['nn']
-            self.opti = model['optimizer']
-            self.loss = model['loss']
-            self.batch_size = model['batch_size']
-            self.epoch = model['epoch']
-            pass
+            nn = model['nn'].to(self._device)
+            opti = model['optimizer']
+            loss = model['loss']
+            batch_size = model['batch_size']
+            epoch = model['epoch']
+            if folds:
+                for i in range(folds):
+                    ts, vs = self._kfolds(folds)
+                    train = DataLoader(self._dataset,
+                            batch_size=batch_size, shuffle=False,
+                            collate_fn=tree_collate, sampler=ts)
+                    valid = DataLoader(self._dataset,
+                            batch_size=batch_size, shuffle=False,
+                            collate_fn=tree_collate, sampler=vs)
+                    self._training(train, nn, opti, loss, epoch)
+                    self._validing(valid, nn)
 
     def _training(self, train, nn, optimizer, loss, epoch):
         for i in range(epoch):
-            print(f'epoch {i+1} start')
+            logger.info(f'epoch {i+1} start')
             for idx, batch in enumerate(train):
                 tloss = 0.0
                 for input, label in batch:
@@ -72,12 +82,26 @@ class Trainer(object):
                     err = loss(output, label)
                     err.backward()
                     tloss += err.item()
-                if idx % 5 == 0:
+                if idx % 50 == 0:
                     logger.info(f'loss: {tloss}')
                 optimizer.step()
                 optimizer.zero_grad()
             print(f'epoch {i+1} fininsed')
         return nn
+
+    def _validing(self, valid, nn):
+        with torch.no_grad():
+            correct = 0
+            total = 0
+            for batch in valid:
+                for input, label in batch:
+                    input = input.to(self._device)
+                    label = label.to(self._device)
+                    outputs = nn(input)
+                    pred = torch.max(outputs.data, -1)
+                    total += 1
+                    correct += 1 if pred == label else 0
+            print('Accuracy: {} %'.format(100 * correct / total)) 
 
     def _testing(self, valid, nn):
         y_pred = []

@@ -27,39 +27,19 @@ class CSTreeLSTM(nn.Module):
         self.wo = nn.Linear(input_size + hidden_size, hidden_size)
         self.wu = nn.Linear(input_size + hidden_size, hidden_size)
 
-    def node_forward(self, input):
-        ch = [child.h for child in input.children]
-        cc = [child.c for child in input.children]
-        h = sum(ch).to(dev)
-        x = input.vector
+    def node_forward(self, x, hlist, clist):
+        h = sum(hlist).to(dev)
         xh = torch.cat((x, h), 0).to(dev)
         i = self.sigmod(self.wi(xh))
         fl = [self.sigmod(self.wf(torch.cat((x, k), 0))) for k in ch]
         o = self.sigmod(self.wo(xh))
         u = self.tanh(self.wu(xh))
-        c = i * u + sum([f * c for f, c in zip(fl, cc)])
-        h = o * self.tanh(c)
-        return h, c
-
-    def leaf_forward(self, input):
-        # h = torch.zeros(self.hidden_size)
-        x = input.vector
-        h = torch.zeros(self.hidden_size).to(dev)
-        xh = torch.cat((x, h), 0).to(dev)
-        i = self.sigmod(self.wi(xh))
-        o = self.sigmod(self.wo(xh))
-        u = self.tanh(self.wu(xh))
-        c = i * u
+        c = i * u + sum([f * c for f, c in zip(fl, clist)])
         h = o * self.tanh(c)
         return h, c
 
     def forward(self, input):
-        for child in input.children:
-            if child.children:
-                child.h, child.c = self.forward(child)
-            else:
-                child.h, child.c = self.leaf_forward(child)
-        return self.node_forward(input)
+        pass
 
 
 class CSTLTNN(nn.Module):
