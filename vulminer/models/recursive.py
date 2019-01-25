@@ -27,19 +27,38 @@ class CSTreeLSTM(nn.Module):
         self.wo = nn.Linear(input_size + hidden_size, hidden_size)
         self.wu = nn.Linear(input_size + hidden_size, hidden_size)
 
-    def node_forward(self, x, hlist, clist):
-        h = sum(hlist).to(dev)
+    def node_forward(self, x, hl, cl):
+        h = sum(hl).to(dev)
         xh = torch.cat((x, h), 0).to(dev)
         i = self.sigmod(self.wi(xh))
-        fl = [self.sigmod(self.wf(torch.cat((x, k), 0))) for k in ch]
+        fl = [self.sigmod(self.wf(torch.cat((x, k), 0))) for k in cl]
         o = self.sigmod(self.wo(xh))
         u = self.tanh(self.wu(xh))
-        c = i * u + sum([f * c for f, c in zip(fl, clist)])
+        c = i * u + sum([f * c for f, c in zip(fl, cl)])
+        h = o * self.tanh(c)
+        return h, c
+
+    def leaf_forward(self, x):
+        h = torch.zeros(self.hidden_size).to(dev)
+        xh = torch.cat((x, h), 0).to(dev)
+        i = self.sigmod(self.wi(xh))
+        o = self.sigmod(self.wo(xh))
+        u = self.tanh(self.wu(xh))
+        c = i * u
         h = o * self.tanh(c)
         return h, c
 
     def forward(self, input):
-        pass
+        hl = []
+        cl = []
+        for child in input.children:
+            if child.children:
+                h, c = self.forward(child)
+            else:
+                h, c = self.leaf_forward(child.vector)
+            hl.append(h)
+            cl.append(c)
+        return self.node_forward(input.vector, hl, cl)
 
 
 class CSTLTNN(nn.Module):
@@ -75,35 +94,31 @@ class NaryTreeLSTM(nn.Module):
         self.uo = nn.Linear(hidden_size, hidden_size, bias=False)
         self.uu = nn.Linear(hidden_size, hidden_size, bias=False)
 
-    def node_forward(self, input):
-        ch = [child.h.to(dev) for child in input.children]
-        cc = [child.c.to(dev) for child in input.children]
-        if len(input.children) > self.wf_num:
-            for i in range(len(input.children) - self.wf_num):
+    def node_forward(self, x, hl, cl):
+        if len(hl) > self.wf_num:
+            for i in range(len(hl) - self.wf_num):
                 setattr(
                     self, f'wf{i+self.wf_num+1}',
                     nn.Linear(self.hidden_size, self.hidden_size,
                               bias=False).to(dev))
-            self.wf_num = len(input.children)
-        x = input.vector
-        uih = sum(map(self.ui, ch)).to(dev)
+            self.wf_num = len(hl)
+        uih = sum(map(self.ui, hl)).to(dev)
         i = self.sigmod(self.wi(x) + uih)
         fl = []
-        for ind, val in enumerate(ch):
+        for ind, val in enumerate(hl):
             wf = getattr(self, f'wf{ind+1}')
-            ukfh = sum(map(wf, ch)).to(dev)
+            ukfh = sum(map(wf, hl)).to(dev)
             fk = self.sigmod(self.wf(x) + ukfh)
             fl.append(fk)
-        uoh = sum(map(self.uo, ch)).to(dev)
+        uoh = sum(map(self.uo, hl)).to(dev)
         o = self.sigmod(self.wo(x) + uoh)
-        uuh = sum(map(self.uu, ch)).to(dev)
+        uuh = sum(map(self.uu, hl)).to(dev)
         u = self.tanh(self.wu(x) + uuh)
-        c = i * u + sum([f * c for f, c in zip(fl, cc)])
+        c = i * u + sum([f * c for f, c in zip(fl, cl)])
         h = o * self.tanh(c)
         return h, c
 
-    def leaf_forward(self, input):
-        x = input.vector
+    def leaf_forward(self, x):
         i = self.sigmod(self.wi(x))
         o = self.sigmod(self.wo(x))
         u = self.tanh(self.wu(x))
@@ -112,12 +127,16 @@ class NaryTreeLSTM(nn.Module):
         return h, c
 
     def forward(self, input):
+        hl = []
+        cl = []
         for child in input.children:
             if child.children:
-                child.h, child.c = self.forward(child)
+                h, c = self.forward(child)
             else:
-                child.h, child.c = self.leaf_forward(child)
-        return self.node_forward(input)
+                h, c = self.leaf_forward(child.vector)
+            hl.append(h)
+            cl.append(c)
+        return self.node_forward(input.vector, hl, cl)
 
 
 class NTLTNN(nn.Module):
@@ -145,26 +164,27 @@ class CBTree(nn.Module):
         self.wl = nn.Linear(input_size, input_size, bias=False)
         self.wr = nn.Linear(input_size, input_size, bias=False)
 
-    def node_forward(self, input):
+    def node_forward(self, x, hl):
+        tot = len(hl)
         ch = []
-        if input.children:
-            tot = len(input.children)
-            for ind, val in enumerate(input.children):
-                if tot > 1:
-                    lc, rc = self._coe(ind + 1, tot)
-                else:
-                    lc = rc = 0.5
-                ch.append(lc * self.wl(val.h) + rc * self.wr(val.h))
-            h = sum(ch) + input.vector
-            h = self.tanh(h)
-        else:
-            h = input.vector
+        for ind, val in enumerate(hl):
+            if tot > 1:
+                lc, rc = self._coe(ind + 1, tot)
+            else:
+                lc = rc = 0.5
+            ch.append(lc * self.wl(val) + rc * self.wr(val))
+        h = x + sum(ch)
+        h = self.tanh(h)
         return h
 
     def forward(self, input):
+        hl = list()
         for child in input.children:
-            child.h = self.forward(child)
-        return self.node_forward(input)
+            if child.children:
+                hl.append(self.forward(child))
+            else:
+                hl.append(child.vector)
+        return self.node_forward(input.vector, hl)
 
     @staticmethod
     def _coe(ind, tot):
@@ -188,5 +208,21 @@ class CBTNN(nn.Module):
         output = self.tnn(input)
         output = self.dense(output)
         output = self.sigmod(output)
-        #output = self.softmax(output)
         return output
+
+
+class NTLSTM(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        pass
+
+    def forward(self, input):
+        hl = []
+        cl = []
+        for child in input.children:
+            if child.children:
+                h, c = self.forward(child)
+            else:
+                h, c = self.leaf_forward(child.vector)
+            hl.append(h)
+            cl.append(c)
+        return self.node_forward(input.vector, hl, cl)
