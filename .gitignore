@@ -112,3 +112,6 @@ venv.bak/
 
 # main.py
 main.py
+
+# pipenv
+Pipfile.lock
