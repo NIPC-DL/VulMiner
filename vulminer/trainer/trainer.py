@@ -38,11 +38,11 @@ class Trainer(object):
 
     def addModel(self, model):
         """Add models
-        
+    
         Args:
             model (list, dict): A model is a dict contained necessary values
                 you can add it one by one or just add a list of models
-            
+      
         """
         if isinstance(model, list):
             self._models.extend(model)
