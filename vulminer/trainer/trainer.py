@@ -17,10 +17,6 @@ from vulminer.utils import logger
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
-def tree_collate(batch):
-    return batch
-
-
 class Trainer(object):
     def __init__(self, root, dataset=None, device=dev):
         self._root = pathlib.Path(root).expanduser()
@@ -61,31 +57,27 @@ class Trainer(object):
                 for i in range(folds):
                     ts, vs = self._kfolds(folds)
                     train = DataLoader(self._dataset,
-                            batch_size=batch_size, shuffle=False,
-                            collate_fn=tree_collate, sampler=ts)
+                            batch_size=batch_size, shuffle=False, sampler=ts)
                     valid = DataLoader(self._dataset,
-                            batch_size=batch_size, shuffle=False,
-                            collate_fn=tree_collate, sampler=vs)
+                            batch_size=batch_size, shuffle=False, sampler=vs)
                     self._training(train, nn, opti, loss, epoch)
                     self._validing(valid, nn)
 
-    def _training(self, train, nn, optimizer, loss, epoch):
+    def _training(self, train, nn, opti, loss, epoch):
         for i in range(epoch):
             logger.info(f'epoch {i+1} start')
-            for idx, batch in enumerate(train):
+            for idx, (inputs, labels) in enumerate(train):
                 tloss = 0.0
-                for input, label in batch:
-                    input = input.to(dev)
-                    label = label.to(dev)
-                    optimizer.zero_grad()
-                    output = nn(input)
-                    err = loss(output, label)
-                    err.backward()
-                    tloss += err.item()
-                if idx % 50 == 0:
+                inputs = inputs.to(dev)
+                labels = labels.to(dev)
+                opti.zero_grad()
+                outputs = nn(inputs)
+                err = loss(outputs, labels)
+                opti.zero_grad()
+                err.backward()
+                opti.step()
+                if idx % 100 == 0:
                     logger.info(f'loss: {tloss}')
-                optimizer.step()
-                optimizer.zero_grad()
             print(f'epoch {i+1} fininsed')
         return nn
 
@@ -93,14 +85,13 @@ class Trainer(object):
         with torch.no_grad():
             correct = 0
             total = 0
-            for batch in valid:
-                for input, label in batch:
-                    input = input.to(self._device)
-                    label = label.to(self._device)
-                    outputs = nn(input)
-                    pred = torch.max(outputs.data, -1)
-                    total += 1
-                    correct += 1 if pred == label else 0
+            for inputs, labels in valid:
+                inputs = inputs.to(self._device)
+                labels = labels.to(self._device)
+                outputs = nn(inputs)
+                pred = torch.max(outputs.data, -1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
             print('Accuracy: {} %'.format(100 * correct / total)) 
 
     def _testing(self, valid, nn):
