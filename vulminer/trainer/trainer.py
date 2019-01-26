@@ -87,17 +87,10 @@ class Trainer(object):
                     input = input.to(dev)
                     label = label.to(dev)
                     output = nn(input)
-                    #if flag:
-                    #    o = output.expand(1, 2)
-                    #    l = label.expand(1)
-                    #    flag = False
-                    #else:
-                    #    o = torch.cat((o, output.expand(1, 2)), 0)
-                    #    l = torch.cat((l, label.expand(1)), 0)
                     err = loss(output.expand(1, 2), label.expand(1))
                     err.backward()
-                    optimizer.step()
-                    optimizer.zero_grad()
+                optimizer.step()
+                optimizer.zero_grad()
                 if idx % 50 == 0:
                     logger.info(f'loss: {err.item()} [{idx}/{len(train)}]')
             logger.info(f'epoch {i+1} fininsed')

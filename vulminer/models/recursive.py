@@ -69,11 +69,16 @@ class CSTLTNN(nn.Module):
         self.num_classses = num_classses
 
         self.tlstm = CSTreeLSTM(input_size, hidden_size)
-        self.dense = nn.Linear(hidden_size, num_classses)
+        self.dense = nn.Linear(hidden_size, hidden_size)
+        self.out = nn.Linear(hidden_size, num_classses)
+        self.relu = nn.ReLU(inplace=True)
+        self.softmax = nn.Softmax()
 
     def forward(self, input):
         output, _ = self.tlstm(input)
         output = self.dense(output)
+        output = self.relu(output)
+        output = self.softmax(output)
         return output
 
 
