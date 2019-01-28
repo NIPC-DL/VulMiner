@@ -14,6 +14,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
 from .treeloader import TreeLoader
 from vulminer.utils import logger
+
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -76,61 +77,34 @@ class Trainer(object):
         for i in range(epoch):
             logger.info(f'epoch {i+1} start')
             for idx, (inputs, labels) in enumerate(train):
-                tloss = 0.0
                 inputs = inputs.to(dev)
                 labels = labels.to(dev)
-                opti.zero_grad()
+
                 outputs = nn(inputs)
                 err = loss(outputs, labels)
+
                 opti.zero_grad()
                 err.backward()
                 opti.step()
+
                 if idx % 100 == 0:
-                    logger.info(f'loss: {tloss}')
-            print(f'epoch {i+1} fininsed')
+                    logger.info(f'loss: {err.item()}')
+            logger.info(f'epoch {i+1} fininsed')
         return nn
 
     def _validing(self, valid, nn):
+        total_pred = []
+        total_label = []
         with torch.no_grad():
             flag = True
-            for batch in valid:
-                for input, label in batch:
-                    input = input.to(self._device)
-                    label = label.to(self._device)
-                    output = nn(input)
-                    if flag:
-                        o = output.expand(1, 2)
-                        l = label.expand(1)
-                        flag = False
-                    else:
-                        o = torch.cat((o, output.expand(1, 2)), 0)
-                        l = torch.cat((l, label.expand(1)), 0)
-            _, p = torch.max(o.data, 1)
-            total = l.size(0)
-            tp, tn, fp, fn = self._metrics(p, l.long())
-            precision = 100 * tp / (tp + fp)
-            fpr = 100 * fp / (fp + tn)
-            fnr = 100 * fn / (fn + tp)
-            f1 = 100 * 2 * tp / (2 * tp + fp + fn)
-            logger.info(f'prc: {precision}')
-            logger.info(f'fpr: {fpr}')
-            logger.info(f'fnr: {fnr}')
-            logger.info(f'f1: {f1}')
+            for inputs, labels in valid:
+                inputs = inputs.to(self._device)
+                labels = labels.to(self._device)
+                outputs = nn(inputs)
+                _, p = torch.max(outputs.data, 1)
+                total_pred.extend(list(p.data))
+                total_label.extend(list(labels.data))
+        print(total_pred)
 
     def _metrics(self, pred, label):
-        tp = 0
-        tn = 0
-        fp = 0
-        fn = 0
-        for p, l in zip(pred, label):
-            pi = p.item()
-            li = l.item()
-            if pi == 1 and li == 1:
-                tp += 1
-            elif pi == 1 and li == 0:
-                fp += 1
-            elif pi == 0 and li == 1:
-                fn += 1
-            else:
-                tn += 1
-        return tp, tn, fp, fn
+        pass
