@@ -19,7 +19,7 @@ dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Trainer(object):
-    def __init__(self, root, dataset=None, device=dev):
+    def __init__(self, root, device=dev):
         self._root = pathlib.Path(root).expanduser()
         self._root.mkdir(parents=True, exist_ok=True)
         self._device = device
@@ -42,6 +42,13 @@ class Trainer(object):
             self._models.append(model)
 
     def fit(self, category=None, folds=None):
+        """Start training and validation
+
+        Args:
+            category (list, None): The class of datasets
+            folds (int): Folds of validation
+
+        """
         for model in self._models:
             self.model_name = model['nn'].__class__.__name__
             nn = model['nn'].to(self._device)
@@ -57,21 +64,14 @@ class Trainer(object):
                     tl = DataLoader(
                         train,
                         batch_size=batch_size,
-                        shuffle=False,
-                        collate_fn=tree_collate)
+                        shuffle=False)
                     vl = DataLoader(
                         valid,
                         batch_size=batch_size,
-                        shuffle=False,
-                        collate_fn=tree_collate)
+                        shuffle=False)
                     logger.info(f'folds [{i+1}/{folds}] start')
                     self._training(tl, nn, opti, loss, epoch)
                     self._validing(vl, nn)
-                    logger.info(f'input size: {nn.input_size}')
-                    logger.info(f'hidden size: {nn.hidden_size}')
-                    logger.info(f'batch size: {batch_size}')
-                    logger.info(f'epoch: {epoch}')
-                    logger.info(f'lr: {opti.defaults["lr"]}')
 
     def _training(self, train, nn, opti, loss, epoch):
         for i in range(epoch):
@@ -106,5 +106,6 @@ class Trainer(object):
                 total_label.extend(list(labels.data))
         print(total_pred)
 
-    def _metrics(self, pred, label):
+    @staticmethod
+    def log():
         pass
