@@ -22,10 +22,7 @@ class GRU(nn.Module):
         self.num_classes = num_classes
         self.gru = nn.GRU(self.input_size, self.hidden_size, self.num_layers,
                           **kwargs)
-        self.dense = nn.Linear(
-            self.hidden_size,
-            self.num_classes,
-        )
+        self.dense = nn.Linear(self.hidden_size, self.num_classes,)
 
     def forward(self, input):
         output, _ = self.gru(input)

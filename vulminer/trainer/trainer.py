@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-mytrainer.py - description
+trainer.py - Trainer
 
 :Author: Verf
 :Email: verf@protonmail.com
@@ -41,6 +41,9 @@ class Trainer(object):
         else:
             self._models.append(model)
 
+    def addMetrics(self, metrics):
+        self._metrics = metrics
+
     def fit(self, category=None, folds=None):
         """Start training and validation
 
@@ -52,7 +55,7 @@ class Trainer(object):
         for model in self._models:
             self.model_name = model['nn'].__class__.__name__
             nn = model['nn'].to(self._device)
-            opti = model['optimizer']
+            opti = model['opti']
             loss = model['loss']
             batch_size = model['batch_size']
             epoch = model['epoch']
@@ -72,6 +75,7 @@ class Trainer(object):
                     logger.info(f'folds [{i+1}/{folds}] start')
                     self._training(tl, nn, opti, loss, epoch)
                     self._validing(vl, nn)
+                    break
 
     def _training(self, train, nn, opti, loss, epoch):
         for i in range(epoch):
@@ -87,7 +91,7 @@ class Trainer(object):
                 err.backward()
                 opti.step()
 
-                if idx % 100 == 0:
+                if idx % 10 == 0:
                     logger.info(f'loss: {err.item()}')
             logger.info(f'epoch {i+1} fininsed')
         return nn
@@ -102,9 +106,11 @@ class Trainer(object):
                 labels = labels.to(self._device)
                 outputs = nn(inputs)
                 _, p = torch.max(outputs.data, 1)
-                total_pred.extend(list(p.data))
-                total_label.extend(list(labels.data))
-        print(total_pred)
+                total_pred.extend([int(x) for x in p.data])
+                total_label.extend([int(x) for x in labels.data])
+        for k, m in self._metrics.items():
+            num = m(total_pred, total_label)
+            logger.info(f'{k}: {num}')
 
     @staticmethod
     def log():
