@@ -11,31 +11,32 @@ import pathlib
 import torch
 import torch.nn as nn
 from torch.optim import Adam
+from torch.utils.data import DataLoader
 from multiprocessing import cpu_count
-from covec.datasets import SySeVR, Juliet
+from covec.datasets import SySeVR, Juliet, VulDeePecker
 from covec.processor import TextModel, TreeModel, Word2Vec
 from vulminer.utils import logger
 from vulminer.trainer import Trainer
-from vulminer.models.recurrent import GRU
+from vulminer.models.recurrent import GRU, BGRU
 from vulminer.models.recursive import CSTLTNN, NTLTNN, CBTNN
-from torch.utils.data import DataLoader
+from vulminer.utils.metrics import accurary, precision, f1, tpr, fpr, fnr
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # set work path
-data_root = pathlib.Path('~/WorkSpace/Test/Vul/Data').expanduser()
-vulm_root = pathlib.Path('~/WorkSpace/Test/Vul/').expanduser()
+data_root = pathlib.Path('~/Workspace/Merge/Test/Data').expanduser()
+vulm_root = pathlib.Path('~/Workspace/Merge/Test/').expanduser()
 
 # nn parameter
 input_size = 100
 hidden_size = 200
-num_layers = 1
+num_layers = 2
 num_classes = 2
-learning_rate = 0.01
+learning_rate = 0.001
 
 # word2vec parameter
 word2vec_para = {
-    'size': int(input_size / 2),
+    'size': int(input_size),
     'min_count': 1,
     'workers': cpu_count(),
 }
@@ -45,14 +46,16 @@ cstlstm = CSTLTNN(input_size, hidden_size, num_classes)
 ntlstm = NTLTNN(input_size, hidden_size, num_classes)
 cbtnn = CBTNN(input_size, num_classes)
 gru = GRU(input_size, hidden_size, num_layers, num_classes)
+bgru = BGRU(input_size, hidden_size, num_layers, num_classes)
 
 # set models
 models = [
     {
         'nn': gru,
         'opti': Adam(gru.parameters(), lr=learning_rate),
-        'batch_size': 50,
-        'epoch': 1,
+        'loss': nn.CrossEntropyLoss(),
+        'batch_size': 100,
+        'epoch': 10,
     },
     # {
     #     'nn': cstlstm.to(dev),
@@ -75,9 +78,19 @@ models = [
     # },
 ]
 
+metrics = {
+        'acc': accurary,
+        'pre': precision,
+        'f1': f1,
+        'tpr': tpr,
+        'fpr': fpr,
+        'fnr': fnr,
+        }
+
 def main():
     # logger config
     logger.level = 'debug'
+    logger.addCmdHandler()
     logger.addFileHandler(path=str(vulm_root / 'vulminer.log'))
     # dataset config
     # set word2vec, the parameter same as gensim's word2vec
@@ -91,6 +104,7 @@ def main():
     # add data and models
     trainer.addData(dataset)
     trainer.addModel(models)
+    trainer.addMetrics(metrics)
     trainer.fit(['AF'], 10)
 
 
