@@ -29,7 +29,7 @@ def accurary(preds, labels):
 
 def precision(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return fp/(tp+fp)
+    return tp/(tp+fp)
 
 def recall(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
