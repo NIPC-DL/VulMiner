@@ -64,6 +64,7 @@ class Trainer(object):
             if folds:
                 for i in range(folds):
                     train, valid = self._dataset.load(category, folds)
+                    print('load dataset success')
                     tl = DataLoader(
                         train,
                         batch_size=batch_size,
