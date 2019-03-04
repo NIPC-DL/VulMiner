@@ -8,11 +8,7 @@ trainer.py - Trainer
 """
 import torch
 import pathlib
-import pickle
-import numpy as np
-from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader
-from .treeloader import TreeLoader
 from vulminer.utils import logger
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -44,7 +40,7 @@ class Trainer(object):
     def addMetrics(self, metrics):
         self._metrics = metrics
 
-    def fit(self, category=None, folds=None):
+    def fit(self, category=None, folds=None, save=False):
         """Start training and validation
 
         Args:
@@ -64,17 +60,14 @@ class Trainer(object):
             if folds:
                 for i in range(folds):
                     train, valid = self._dataset.load(category, folds)
-                    tl = DataLoader(
-                        train,
-                        batch_size=batch_size,
-                        shuffle=False)
-                    vl = DataLoader(
-                        valid,
-                        batch_size=batch_size,
-                        shuffle=False)
+                    tl = DataLoader(train, batch_size=batch_size, shuffle=False)
+                    vl = DataLoader(valid, batch_size=batch_size, shuffle=False)
                     logger.info(f'folds [{i+1}/{folds}] start')
                     self._training(tl, nn, opti, loss, epoch)
                     self._validing(vl, nn)
+                    if save:
+                        torch.save(model.state_dict(),
+                                   self._root / f'{self.model_name}.model')
                     break
 
     def _training(self, train, nn, opti, loss, epoch):
@@ -100,7 +93,6 @@ class Trainer(object):
         total_pred = []
         total_label = []
         with torch.no_grad():
-            flag = True
             for inputs, labels in valid:
                 inputs = inputs.to(self._device)
                 labels = labels.to(self._device)
@@ -112,6 +104,5 @@ class Trainer(object):
             num = m(total_pred, total_label)
             logger.info(f'{k}: {num}')
 
-    @staticmethod
-    def log():
+    def predicts(self):
         pass
