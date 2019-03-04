@@ -25,19 +25,35 @@ def stat(preds, labels):
 
 def accurary(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return (tp+tn)/len(preds)
+    try:
+        res = (tp+tn)/len(preds)
+    except Exception:
+        res = -1
+    return res
 
 def precision(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return tp/(tp+fp)
+    try:
+        res = tp/(tp+fp)
+    except Exception:
+        res = -1
+    return res
 
 def recall(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return tp/(tp+fn)
+    try:
+        res = tp/(tp+fn)
+    except Exception:
+        res = -1
+    return res
 
 def miss(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return fn/(fn+tp)
+    try:
+        res = fn/(tp+fn)
+    except Exception:
+        res = -1
+    return res
 
 def tpr(preds, labels):
     return recall(preds, labels)
@@ -47,9 +63,17 @@ def fnr(preds, labels):
 
 def fpr(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return fp/(fp+tn)
+    try:
+        res = fp/(fp+tn)
+    except Exception:
+        res = -1
+    return res
 
 def f1(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
-    return (2*tp)/(2*tp + fp + fn)
+    try:
+        res = (2*tp)/(2*tp + fp + fn)
+    except Exception:
+        res = -1
+    return res
 

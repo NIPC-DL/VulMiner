@@ -54,7 +54,8 @@ class Trainer(object):
         """
         for model in self._models:
             self.model_name = model['nn'].__class__.__name__
-            nn = model['nn'].to(self._device)
+            mod = model['nn']
+            mod.to(self._device)
             opti = model['opti']
             loss = model['loss']
             batch_size = model['batch_size']
@@ -68,36 +69,39 @@ class Trainer(object):
                     tl = DataLoader(
                         train,
                         batch_size=batch_size,
-                        shuffle=False)
+                        shuffle=True)
                     vl = DataLoader(
                         valid,
                         batch_size=batch_size,
                         shuffle=False)
                     logger.info(f'folds [{i+1}/{folds}] start')
-                    self._training(tl, nn, opti, loss, epoch)
-                    self._validing(vl, nn)
+                    self._training(tl, mod, opti, loss, epoch, valid=vl)
+                    # self._validing(vl, mod)
                     break
 
-    def _training(self, train, nn, opti, loss, epoch):
+    def _training(self, train, mod, opti, loss, epoch, valid=None):
         for i in range(epoch):
             logger.info(f'epoch {i+1} start')
             for idx, (inputs, labels) in enumerate(train):
                 inputs = inputs.to(dev)
                 labels = labels.to(dev)
-
-                outputs = nn(inputs)
+                # lengths = torch.LongTensor([len(x) for x in inputs]).to(dev)
+                # outputs = mod(inputs, lengths)
+                outputs = mod(inputs)
                 err = loss(outputs, labels)
-
                 opti.zero_grad()
                 err.backward()
                 opti.step()
 
-                if idx % 10 == 0:
-                    logger.info(f'loss: {err.item()}')
+                if idx % 200 == 0:
+                    logger.info(f'Epoch [{i+1}/{epoch}] \
+                            Step [{idx}/{len(train)}] \
+                            loss: {err.item():.4f}')
+            if valid and (i+1)%2 == 0:
+                self._validing(valid, mod)
             logger.info(f'epoch {i+1} fininsed')
-        return nn
 
-    def _validing(self, valid, nn):
+    def _validing(self, valid, mod):
         total_pred = []
         total_label = []
         with torch.no_grad():
@@ -105,14 +109,13 @@ class Trainer(object):
             for inputs, labels in valid:
                 inputs = inputs.to(self._device)
                 labels = labels.to(self._device)
-                outputs = nn(inputs)
+                # lengths = torch.LongTensor([len(x) for x in inputs]).to(dev)
+                outputs = mod(inputs)
                 _, p = torch.max(outputs.data, 1)
+                _, l = torch.max(labels.data, 1)
                 total_pred.extend([int(x) for x in p.data])
-                total_label.extend([int(x) for x in labels.data])
+                total_label.extend([int(x) for x in l.data])
         for k, m in self._metrics.items():
             num = m(total_pred, total_label)
             logger.info(f'{k}: {num}')
 
-    @staticmethod
-    def log():
-        pass
