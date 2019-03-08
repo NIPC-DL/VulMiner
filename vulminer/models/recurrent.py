@@ -82,10 +82,8 @@ class BGRU(nn.Module):
         self.softmax = nn.Softmax()
 
 
-    def forward(self, input, lengths):
-        out = torch.nn.utils.rnn.pack_padded_sequence(input, lengths, batch_first=True)
-        out, _ = self.bgru(out)
-        out, _ = torch.nn.utils.rnn.pad_packed_sequence(out, batch_first=True)
+    def forward(self, input):
+        out, _ = self.bgru(input)
         out = self.dense1(out[:, -1, :])
         out = self.relu1(out)
         out = self.dense2(out)

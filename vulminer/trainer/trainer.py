@@ -40,7 +40,7 @@ class Trainer(object):
     def addMetrics(self, metrics):
         self._metrics = metrics
 
-    def fit(self, category=None, folds=None, save=False):
+    def fit(self, category=None, folds=None, save=True):
         """Start training and validation
 
         Args:
@@ -73,8 +73,8 @@ class Trainer(object):
                     logger.info(f'folds [{i+1}/{folds}] start')
                     self._training(tl, mod, opti, loss, epoch, valid=vl)
                     if save:
-                        torch.save(model.state_dict(), str(self._rootp /
-                            f'str(nn).model'))
+                        torch.save(model.state_dict(), str(self._root /
+                            f'{str(nn)}.model'))
                     break
 
     def _training(self, train, mod, opti, loss, epoch, valid=None):

@@ -13,9 +13,11 @@ def stat(preds, labels):
     fp = 0
     fn = 0
     for p, l in zip(preds, labels):
-        if p == l == 1:
+        p = int(p)
+        l = int(l)
+        if p == 1 and l == 1:
             tp += 1
-        elif p == l == 0:
+        elif p == 0 and l == 0:
             tn += 1
         elif p == 1 and l == 0:
             fp += 1
@@ -25,8 +27,9 @@ def stat(preds, labels):
 
 def accurary(preds, labels):
     tp, tn, fp, fn = stat(preds, labels)
+    print(tp,fn,fp,fn)
     try:
-        res = (tp+tn)/len(preds)
+        res = (tp+tn)/(tp+tn+fp+fn)
     except Exception:
         res = -1
     return res
