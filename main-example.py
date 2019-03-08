@@ -6,19 +6,16 @@ Main entry of VulMiner
 :Email: verf@protonmail.com
 :License: MIT
 """
-import os
 import pathlib
 import torch
 import torch.nn as nn
 from torch.optim import Adam
-from torch.utils.data import DataLoader
 from multiprocessing import cpu_count
-from covec.datasets import SySeVR, Juliet, VulDeePecker
-from covec.processor import TextModel, TreeModel, Word2Vec, Tree2Seq
+from covec.datasets import SySeVR, Juliet
+from covec.processor import TextModel, Word2Vec, Tree2Seq
 from vulminer.utils import logger
 from vulminer.trainer import Trainer
 from vulminer.models.recurrent import GRU, BGRU
-from vulminer.models.recursive import CSTLTNN, NTLTNN, CBTNN
 from vulminer.utils.metrics import accurary, precision, f1, tpr, fpr, fnr
 
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
