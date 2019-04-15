@@ -11,8 +11,8 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 from multiprocessing import cpu_count
-from covec.datasets import SySeVR, Juliet
-from covec.processor import TextModel, Word2Vec, Tree2Seq
+from torchplp.datasets import SySeVR, Juliet
+from torchplp.processor import TextModel, Word2Vec, Tree2Seq
 from vulminer.utils import logger
 from vulminer.trainer import Trainer
 from vulminer.models.recurrent import GRU, BGRU

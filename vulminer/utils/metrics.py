@@ -6,77 +6,29 @@ metrics.py - The collection of metrics
 :Email: verf@protonmail.com
 :License: MIT
 """
+import sklearn.metrics as skm
 
-def stat(preds, labels):
-    tp = 0
-    tn = 0
-    fp = 0
-    fn = 0
-    for p, l in zip(preds, labels):
-        p = int(p)
-        l = int(l)
-        if p == 1 and l == 1:
-            tp += 1
-        elif p == 0 and l == 0:
-            tn += 1
-        elif p == 1 and l == 0:
-            fp += 1
-        else:
-            fn += 1
+def base(labels, preds):
+    cm = skm.confusion_matrix(labels, preds)
+    tn = cm[0][0]
+    fn = cm[1][0]
+    tp = cm[1][1]
+    fp = cm[0][1]
     return tp, tn, fp, fn
 
-def accurary(preds, labels):
-    tp, tn, fp, fn = stat(preds, labels)
-    print(tp,fn,fp,fn)
+def fnr(labels, preds):
+    tp, tn, fp, fn = base(labels, preds)
     try:
-        res = (tp+tn)/(tp+tn+fp+fn)
+        res = fn/(fn+tp)
     except Exception:
         res = -1
     return res
 
-def precision(preds, labels):
-    tp, tn, fp, fn = stat(preds, labels)
-    try:
-        res = tp/(tp+fp)
-    except Exception:
-        res = -1
-    return res
-
-def recall(preds, labels):
-    tp, tn, fp, fn = stat(preds, labels)
-    try:
-        res = tp/(tp+fn)
-    except Exception:
-        res = -1
-    return res
-
-def miss(preds, labels):
-    tp, tn, fp, fn = stat(preds, labels)
-    try:
-        res = fn/(tp+fn)
-    except Exception:
-        res = -1
-    return res
-
-def tpr(preds, labels):
-    return recall(preds, labels)
-
-def fnr(preds, labels):
-    return miss(preds, labels)
-
-def fpr(preds, labels):
-    tp, tn, fp, fn = stat(preds, labels)
+def fpr(labels, preds):
+    tp, tn, fp, fn = base(labels, preds)
+    print(tp, tn, fp, fn)
     try:
         res = fp/(fp+tn)
     except Exception:
         res = -1
     return res
-
-def f1(preds, labels):
-    tp, tn, fp, fn = stat(preds, labels)
-    try:
-        res = (2*tp)/(2*tp + fp + fn)
-    except Exception:
-        res = -1
-    return res
-
