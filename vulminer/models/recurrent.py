@@ -24,7 +24,9 @@ class BGRU(nn.Module):
                 batch_first=True,
                 bidirectional=True)
         self.dense = nn.Sequential(
-                nn.Linear(hidden_size*2, num_classes)
+                nn.Linear(hidden_size*2, hidden_size),
+                nn.Tanh(),
+                nn.Linear(hidden_size, num_classes),
                 )
 
     def forward(self, x, l):

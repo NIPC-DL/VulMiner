@@ -104,6 +104,7 @@ class Trainer(object):
                 _, pred = torch.max(outputs.data, 1)
                 total_pred.extend([int(x) for x in pred.data])
                 total_label.extend([int(x) for x in labels.data])
+        logger.info(f'average loss: {sum(total_loss)/len(total_loss)}')
         for k, m in self._metrics.items():
             logger.info(f'{k}: {m(total_label, total_pred)}')
         return total_pred
