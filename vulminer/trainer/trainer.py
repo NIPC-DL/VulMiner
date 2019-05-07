@@ -14,12 +14,12 @@ dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Trainer(object):
-    def __init__(self, root, device=dev, padded=True):
+    def __init__(self, root, device=dev, padded=False):
         self._root = pathlib.Path(root).expanduser()
         self._root.mkdir(parents=True, exist_ok=True)
         self._device = device
-        self._models = list()
         self._padded = padded
+        self._models = list()
 
     def addData(self, train, valid=None):
         self._train = train
@@ -58,11 +58,11 @@ class Trainer(object):
     def _training(self, mod, crit, opti, epochs):
         total_step = len(self._train)
         for epoch in range(epochs):
-            for ind, (datas, lens, labels) in enumerate(self._train):
-                datas = datas.to(self._device)
-                lens = lens.to(self._device)
-                labels = labels.to(self._device)
+            for ind, samps in enumerate(self._train):
+                datas = samps[0].to(self._device)
+                labels = samps[1].to(self._device)
                 if self._padded:
+                    lens = samps[2].to(self._device)
                     lens, perm_idx = lens.sort(0, descending=True)
                     datas = datas[perm_idx]
                     labels = labels[perm_idx]
@@ -87,11 +87,11 @@ class Trainer(object):
             total_pred = []
             total_label = []
             total_loss = []
-            for ind, (datas, lens, labels) in enumerate(self._valid):
-                datas = datas.to(self._device)
-                lens = lens.to(self._device)
-                labels = labels.to(self._device)
+            for ind, samps in enumerate(self._valid):
+                datas = samps[0].to(self._device)
+                labels = samps[1].to(self._device)
                 if self._padded:
+                    lens = samps[2].to(self._device)
                     lens, perm_idx = lens.sort(0, descending=True)
                     datas = datas[perm_idx]
                     labels = labels[perm_idx]
@@ -109,17 +109,17 @@ class Trainer(object):
             logger.info(f'{k}: {m(total_label, total_pred)}')
         return total_pred
 
-def predictor(mod, data, metrics=None, labels=True, padded=True, device=dev):
+def predictor(mod, data, metrics=None, labels=True, padded=False, device=dev):
     logger.info('start predicting')
     with torch.no_grad():
         total_pred = []
         total_label = []
         for ind, samp in enumerate(data):
             x = samp[0].to(device)
-            l = samp[1].to(device)
             if labels:
-                y = samp[2].to(device)
+                y = samp[1].to(device)
             if padded:
+                l = samp[2].to(device)
                 l, perm_idx = l.sort(0, descending=True)
                 x = x[perm_idx]
                 if labels:

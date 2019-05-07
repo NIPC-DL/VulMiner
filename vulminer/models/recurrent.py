@@ -36,6 +36,7 @@ class BGRU(nn.Module):
         idx = (idx-1).view(-1, 1).expand(out.size(0), out.size(2)).unsqueeze(1).long().to(dev)
         out = out.gather(1, idx).squeeze().unsqueeze(1)
         out = self.dense(out[:, -1, :])
+        # out = self.dense(h[-1])
         return out
 
 class BLSTM(nn.Module):
@@ -50,7 +51,7 @@ class BLSTM(nn.Module):
                 batch_first=True,
                 bidirectional=True)
         self.dense = nn.Sequential(
-                nn.Linear(hidden_size, num_classes)
+                nn.Linear(hidden_size*2, num_classes)
                 )
 
     def forward(self, x):
