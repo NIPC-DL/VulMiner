@@ -7,6 +7,7 @@ metrics.py - The collection of metrics
 :License: MIT
 """
 import sklearn.metrics as skm
+from vulminer.utils import logger
 
 def base(labels, preds):
     cm = skm.confusion_matrix(labels, preds)
@@ -26,7 +27,7 @@ def fnr(labels, preds):
 
 def fpr(labels, preds):
     tp, tn, fp, fn = base(labels, preds)
-    print(tp, tn, fp, fn)
+    logger.info(f'{tp}, {tn}, {fp}, {fn}')
     try:
         res = fp/(fp+tn)
     except Exception:

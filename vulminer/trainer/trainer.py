@@ -14,11 +14,11 @@ dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Trainer(object):
-    def __init__(self, root, device=dev, padded=False):
+    def __init__(self, root, device=dev, truncate=False):
         self._root = pathlib.Path(root).expanduser()
         self._root.mkdir(parents=True, exist_ok=True)
         self._device = device
-        self._padded = padded
+        self._truncate = truncate
         self._models = list()
 
     def addData(self, train, valid=None):
@@ -61,14 +61,14 @@ class Trainer(object):
             for ind, samps in enumerate(self._train):
                 datas = samps[0].to(self._device)
                 labels = samps[1].to(self._device)
-                if self._padded:
+                if self._truncate:
+                    outputs = mod(datas)
+                else:
                     lens = samps[2].to(self._device)
                     lens, perm_idx = lens.sort(0, descending=True)
                     datas = datas[perm_idx]
                     labels = labels[perm_idx]
                     outputs = mod(datas, lens)
-                else:
-                    outputs = mod(datas)
                 loss = crit(outputs, labels)
                 opti.zero_grad()
                 loss.backward()
@@ -80,6 +80,8 @@ class Trainer(object):
                             )
             if (epoch+1) > 3 and self._valid:
                 self._validing(mod, crit)
+                # if (epoch+1) > 30:
+                #     torch.save(mod.state_dict(), str(self._root / f'5k_{epoch}.pt'))
         return mod
 
     def _validing(self, mod, crit):
@@ -90,14 +92,14 @@ class Trainer(object):
             for ind, samps in enumerate(self._valid):
                 datas = samps[0].to(self._device)
                 labels = samps[1].to(self._device)
-                if self._padded:
+                if self._truncate:
+                    outputs = mod(datas)
+                else:
                     lens = samps[2].to(self._device)
                     lens, perm_idx = lens.sort(0, descending=True)
                     datas = datas[perm_idx]
                     labels = labels[perm_idx]
                     outputs = mod(datas, lens)
-                else:
-                    outputs = mod(datas)
                 loss = crit(outputs, labels)
 
                 total_loss.append(loss.item())
@@ -106,10 +108,10 @@ class Trainer(object):
                 total_label.extend([int(x) for x in labels.data])
         logger.info(f'average loss: {sum(total_loss)/len(total_loss)}')
         for k, m in self._metrics.items():
-            logger.info(f'{k}: {m(total_label, total_pred)}')
+            logger.info(f'{k}: {m(total_label, total_pred):.4f}')
         return total_pred
 
-def predictor(mod, data, metrics=None, labels=True, padded=False, device=dev):
+def predictor(mod, data, metrics=None, labels=True, truncate=False, device=dev):
     logger.info('start predicting')
     with torch.no_grad():
         total_pred = []
@@ -118,15 +120,15 @@ def predictor(mod, data, metrics=None, labels=True, padded=False, device=dev):
             x = samp[0].to(device)
             if labels:
                 y = samp[1].to(device)
-            if padded:
+            if truncate:
+                outputs = mod(x)
+            else:
                 l = samp[2].to(device)
                 l, perm_idx = l.sort(0, descending=True)
                 x = x[perm_idx]
                 if labels:
                     y = y[perm_idx]
                 outputs = mod(x, l)
-            else:
-                outputs = mod(x)
             _, pred = torch.max(outputs.data, 1)
             total_pred.extend([int(x) for x in pred.data])
             if labels:
